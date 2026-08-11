@@ -16,7 +16,7 @@
       "package": "org.shapers.church",
       "adaptiveIcon": {
         "foregroundImage": "./assets/logo.png",
-        "backgroundColor": "#2A2A72"
+        "backgroundColor": "#000000"
       }
     },
     "plugins": [
@@ -27,7 +27,7 @@
           "image": "./assets/logo.png",
           "imageWidth": 160,
           "resizeMode": "contain",
-          "backgroundColor": "#2A2A72"
+          "backgroundColor": "#000000"
         }
       ]
     ]
