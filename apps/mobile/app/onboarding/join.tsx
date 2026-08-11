@@ -4,6 +4,7 @@ import { Text } from "react-native";
 import { Button, Screen, TextField, theme } from "@shapers/ui";
 import { findChurchByInviteCode } from "@shapers/api-client";
 import { getSupabaseClient } from "@/lib/supabase";
+import { logoSource } from "@/lib/logo";
 
 export default function JoinChurchScreen() {
   const router = useRouter();
@@ -32,7 +33,7 @@ export default function JoinChurchScreen() {
   }
 
   return (
-    <Screen>
+    <Screen logoSource={logoSource}>
       <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: theme.spacing(2) }}>
         Find your church
       </Text>

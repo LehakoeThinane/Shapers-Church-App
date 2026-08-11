@@ -4,6 +4,7 @@ import { Text, View } from "react-native";
 import { Button, Screen, TextField, theme } from "@shapers/ui";
 import { signIn, getCurrentUser } from "@shapers/api-client";
 import { getSupabaseClient } from "@/lib/supabase";
+import { logoSource } from "@/lib/logo";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -28,7 +29,7 @@ export default function LoginScreen() {
   }
 
   return (
-    <Screen>
+    <Screen logoSource={logoSource}>
       <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: theme.spacing(6) }}>
         Log in
       </Text>

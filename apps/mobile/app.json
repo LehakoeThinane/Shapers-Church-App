@@ -7,16 +7,29 @@
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "splash": {
-      "backgroundColor": "#FFFFFF"
-    },
+    "icon": "./assets/logo.png",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "org.shapers.church"
     },
     "android": {
-      "package": "org.shapers.church"
+      "package": "org.shapers.church",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/logo.png",
+        "backgroundColor": "#2A2A72"
+      }
     },
-    "plugins": ["expo-router"]
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/logo.png",
+          "imageWidth": 160,
+          "resizeMode": "contain",
+          "backgroundColor": "#2A2A72"
+        }
+      ]
+    ]
   }
 }

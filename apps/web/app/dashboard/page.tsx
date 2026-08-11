@@ -7,6 +7,7 @@ import { Button, Screen, theme } from "@shapers/ui";
 import { getCurrentUser, signOut } from "@shapers/api-client";
 import type { CurrentUser } from "@shapers/types";
 import { getSupabaseClient } from "@/lib/supabase";
+import { logoSource } from "@/lib/logo";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -40,7 +41,7 @@ export default function DashboardPage() {
   if (loading || !me) return null;
 
   return (
-    <Screen>
+    <Screen logoSource={logoSource}>
       <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: theme.spacing(2) }}>
         Welcome, {me.person.first_name}
       </Text>

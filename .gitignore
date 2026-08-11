@@ -59,8 +59,8 @@ Thumbs.db
 !.vscode/extensions.json
 .idea/
 
-# local Claude Code settings (machine-specific tool permissions, not shared config)
-.claude/settings.local.json
+# local Claude Code state (machine-specific settings, task locks — not shared config)
+.claude/
 
 # misc
 *.tsbuildinfo

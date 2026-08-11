@@ -4,6 +4,7 @@ import { Text, View } from "react-native";
 import { Button, Screen, TextField, theme } from "@shapers/ui";
 import { signUp } from "@shapers/api-client";
 import { getSupabaseClient } from "@/lib/supabase";
+import { logoSource } from "@/lib/logo";
 
 export default function SignupScreen() {
   const router = useRouter();
@@ -26,7 +27,7 @@ export default function SignupScreen() {
   }
 
   return (
-    <Screen>
+    <Screen logoSource={logoSource}>
       <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: theme.spacing(6) }}>
         Create your account
       </Text>

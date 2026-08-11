@@ -1,14 +1,20 @@
 import React from "react";
-import { ScrollView, StyleSheet, View, type ViewProps } from "react-native";
+import { ScrollView, StyleSheet, View, type ImageSourcePropType, type ViewProps } from "react-native";
+import { BrandHeader } from "./BrandHeader";
 import { theme } from "./theme";
 
-export function Screen({ children, style, ...rest }: ViewProps) {
+export interface ScreenProps extends ViewProps {
+  logoSource?: ImageSourcePropType;
+}
+
+export function Screen({ children, style, logoSource, ...rest }: ScreenProps) {
   return (
     <ScrollView
       style={styles.scroll}
       contentContainerStyle={styles.content}
       keyboardShouldPersistTaps="handled"
     >
+      {logoSource ? <BrandHeader logoSource={logoSource} /> : null}
       <View style={[styles.inner, style]} {...rest}>
         {children}
       </View>

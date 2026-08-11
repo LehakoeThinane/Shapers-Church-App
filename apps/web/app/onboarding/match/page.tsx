@@ -6,6 +6,7 @@ import { Text } from "react-native";
 import { Button, Screen, TextField, theme } from "@shapers/ui";
 import { matchPerson } from "@shapers/api-client";
 import { getSupabaseClient } from "@/lib/supabase";
+import { logoSource } from "@/lib/logo";
 
 function MatchPersonForm() {
   const router = useRouter();
@@ -48,7 +49,7 @@ function MatchPersonForm() {
   }
 
   return (
-    <Screen>
+    <Screen logoSource={logoSource}>
       <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: theme.spacing(2) }}>
         You&apos;re joining {churchName}
       </Text>
