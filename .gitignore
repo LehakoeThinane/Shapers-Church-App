@@ -1,0 +1,67 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# builds
+.next/
+dist/
+build/
+.expo/
+.expo-shared/
+web-build/
+
+# turbo
+.turbo/
+
+# env (every .env variant is sensitive except the committed examples)
+.env
+.env.*
+!.env.example
+!apps/*/.env.example
+
+# supabase
+supabase/.branches
+supabase/.temp
+# service_role key / DB URL if ever dumped to a local config
+supabase/.env
+
+# secrets & credentials of any kind
+*.pem
+*.key
+*.p12
+*.pfx
+*.cer
+*.crt
+*credentials*.json
+*service-account*.json
+google-services.json
+GoogleService-Info.plist
+eas.json
+.npmrc
+id_rsa*
+id_ed25519*
+*.keystore
+*.jks
+secrets/
+secrets.*
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# os
+.DS_Store
+Thumbs.db
+
+# editors
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# local Claude Code settings (machine-specific tool permissions, not shared config)
+.claude/settings.local.json
+
+# misc
+*.tsbuildinfo
+coverage/

@@ -1,0 +1,55 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Text, View } from "react-native";
+import { Button, Screen, TextField, theme } from "@shapers/ui";
+import { signIn, getCurrentUser } from "@shapers/api-client";
+import { getSupabaseClient } from "@/lib/supabase";
+
+export default function LoginPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function onSubmit() {
+    setError(null);
+    setLoading(true);
+    try {
+      const client = getSupabaseClient();
+      await signIn(client, { email, password });
+      const me = await getCurrentUser(client);
+      router.push(me ? "/dashboard" : "/onboarding/join");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <Screen>
+      <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: theme.spacing(6) }}>
+        Log in
+      </Text>
+      <TextField
+        label="Email"
+        value={email}
+        onChangeText={setEmail}
+        autoCapitalize="none"
+        keyboardType="email-address"
+      />
+      <TextField label="Password" value={password} onChangeText={setPassword} secureTextEntry />
+      {error ? (
+        <Text style={{ color: theme.color.danger, marginBottom: theme.spacing(4) }}>{error}</Text>
+      ) : null}
+      <Button title="Log in" onPress={onSubmit} loading={loading} />
+      <View style={{ marginTop: theme.spacing(4), alignItems: "center" }}>
+        <Link href="/signup">Need an account? Sign up</Link>
+      </View>
+    </Screen>
+  );
+}

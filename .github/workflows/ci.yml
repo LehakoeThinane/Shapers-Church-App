@@ -1,0 +1,100 @@
+name: CI
+
+on:
+  push:
+    branches: [development, main]
+  pull_request:
+    branches: [development, main]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.6.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.6.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter web lint
+
+  build-web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.6.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Build-time only; `next build` doesn't contact a real Supabase
+      # project (it's a static/client bundle step), so placeholders are
+      # fine and no secrets are needed in CI.
+      - name: Build web app
+        run: pnpm --filter web build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder
+
+  db-migrations:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+
+      # Bare Postgres has no `auth` schema; Supabase provides one in its
+      # own image. Stub just enough (auth.users, auth.uid(), the
+      # authenticated/anon roles) for the Phase 1 migrations — which
+      # reference all three — to apply the same way they will against a
+      # real Supabase project.
+      - name: Stub Supabase's auth schema
+        run: |
+          PGPASSWORD=postgres psql -h localhost -U postgres -c "
+            create schema auth;
+            create table auth.users (id uuid primary key default gen_random_uuid());
+            create or replace function auth.uid() returns uuid language sql stable as \$\$ select null::uuid \$\$;
+            create role authenticated;
+            create role anon;
+          "
+
+      - name: Apply migrations in order
+        run: |
+          for f in supabase/migrations/*.sql; do
+            echo "Applying $f"
+            PGPASSWORD=postgres psql -h localhost -U postgres -v ON_ERROR_STOP=1 -f "$f"
+          done

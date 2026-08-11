@@ -1,0 +1,22 @@
+{
+  "expo": {
+    "name": "Shapers Church",
+    "slug": "shapers-church-app",
+    "scheme": "shapers",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "backgroundColor": "#FFFFFF"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "org.shapers.church"
+    },
+    "android": {
+      "package": "org.shapers.church"
+    },
+    "plugins": ["expo-router"]
+  }
+}
