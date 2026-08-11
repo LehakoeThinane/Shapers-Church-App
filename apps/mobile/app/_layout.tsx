@@ -9,6 +9,9 @@ export default function RootLayout() {
       <Stack.Screen name="onboarding/join" />
       <Stack.Screen name="onboarding/match" />
       <Stack.Screen name="dashboard" />
+      <Stack.Screen name="checkin/index" />
+      <Stack.Screen name="checkin/scan" />
+      <Stack.Screen name="checkin/pickup" />
     </Stack>
   );
 }

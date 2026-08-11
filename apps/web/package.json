@@ -15,12 +15,14 @@
     "@shapers/ui": "workspace:*",
     "@supabase/supabase-js": "^2.47.0",
     "next": "^15.1.0",
+    "qrcode": "^1.5.4",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
     "react-native-web": "^0.19.13"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
+    "@types/qrcode": "^1.5.5",
     "@types/react": "^18.3.0",
     "@types/react-dom": "^18.3.0",
     "eslint": "^8.57.0",

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Text, View } from "react-native";
 import { Button, LoadingScreen, Screen, theme } from "@shapers/ui";
 import { getCurrentUser, signOut } from "@shapers/api-client";
@@ -40,6 +41,10 @@ export default function DashboardPage() {
 
   if (loading || !me) return <LoadingScreen logoSource={logoSource} />;
 
+  const roles = new Set(me.roleAssignments.map((ra) => ra.role));
+  const canCheckIn = roles.has("admin") || roles.has("kids_staff");
+  const isGuardian = roles.has("guardian");
+
   return (
     <Screen logoSource={logoSource}>
       <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: theme.spacing(2) }}>
@@ -61,6 +66,28 @@ export default function DashboardPage() {
           ))
         )}
       </View>
+
+      {isGuardian || canCheckIn ? (
+        <View style={{ marginBottom: theme.spacing(6) }}>
+          <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>Check-in</Text>
+          {isGuardian ? (
+            <Link href="/checkin" style={{ display: "block", marginBottom: theme.spacing(1) }}>
+              My children&apos;s QR codes
+            </Link>
+          ) : null}
+          {canCheckIn ? (
+            <>
+              <Link href="/checkin/scan" style={{ display: "block", marginBottom: theme.spacing(1) }}>
+                Check in (staff)
+              </Link>
+              <Link href="/checkin/pickup" style={{ display: "block" }}>
+                Pickup (staff)
+              </Link>
+            </>
+          ) : null}
+        </View>
+      ) : null}
+
       <Button title="Sign out" variant="secondary" onPress={onSignOut} />
     </Screen>
   );

@@ -22,6 +22,12 @@
     "plugins": [
       "expo-router",
       [
+        "expo-camera",
+        {
+          "cameraPermission": "Shapers Church uses your camera to scan check-in QR codes."
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "image": "./assets/logo.png",

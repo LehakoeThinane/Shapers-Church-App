@@ -146,6 +146,78 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["role_assignment"]["Insert"]>;
         Relationships: [];
       };
+      church_integration: {
+        Row: {
+          id: string;
+          church_id: string;
+          provider: "planning_center";
+          encrypted_token: string;
+          connected_by: string | null;
+          connected_at: string;
+          last_synced_at: string | null;
+          status: "active" | "token_expired" | "error";
+        };
+        Insert: {
+          id?: string;
+          church_id: string;
+          provider: "planning_center";
+          encrypted_token: string;
+          connected_by?: string | null;
+          connected_at?: string;
+          last_synced_at?: string | null;
+          status?: "active" | "token_expired" | "error";
+        };
+        Update: Partial<Database["public"]["Tables"]["church_integration"]["Insert"]>;
+        Relationships: [];
+      };
+      checkin: {
+        Row: {
+          id: string;
+          church_id: string;
+          person_id: string;
+          checked_in_at: string;
+          checked_out_at: string | null;
+          security_code: string | null;
+          pc_checkin_id: string | null;
+          sync_status: "pending" | "synced" | "failed";
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          church_id: string;
+          person_id: string;
+          checked_in_at?: string;
+          checked_out_at?: string | null;
+          security_code?: string | null;
+          pc_checkin_id?: string | null;
+          sync_status?: "pending" | "synced" | "failed";
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["checkin"]["Insert"]>;
+        Relationships: [];
+      };
+      checkin_tag: {
+        Row: {
+          id: string;
+          church_id: string;
+          person_id: string;
+          week_start_date: string;
+          qr_token: string;
+          expires_at: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          church_id: string;
+          person_id: string;
+          week_start_date: string;
+          qr_token: string;
+          expires_at: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["checkin_tag"]["Insert"]>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -162,6 +234,20 @@ export interface Database {
           p_email?: string | null;
         };
         Returns: string;
+      };
+      checkin_scan: {
+        Args: { p_qr_token: string };
+        Returns: {
+          checkin_id: string;
+          person_id: string;
+          first_name: string;
+          last_name: string;
+          security_code: string;
+        }[];
+      };
+      checkin_pickup: {
+        Args: { p_checkin_id: string; p_qr_token: string };
+        Returns: { checkin_id: string; person_id: string; checked_out_at: string }[];
       };
     };
     Enums: Record<string, never>;
