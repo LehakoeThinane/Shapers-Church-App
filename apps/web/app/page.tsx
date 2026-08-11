@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { LoadingScreen } from "@shapers/ui";
 import { getCurrentUser } from "@shapers/api-client";
 import { getSupabaseClient } from "@/lib/supabase";
+import { logoSource } from "@/lib/logo";
 
 export default function HomePage() {
   const router = useRouter();
-  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -29,14 +30,12 @@ export default function HomePage() {
       router.replace(me ? "/dashboard" : "/onboarding/join");
     }
 
-    route().finally(() => {
-      if (!cancelled) setChecking(false);
-    });
+    route();
 
     return () => {
       cancelled = true;
     };
   }, [router]);
 
-  return checking ? null : null;
+  return <LoadingScreen logoSource={logoSource} />;
 }

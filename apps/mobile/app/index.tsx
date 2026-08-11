@@ -1,7 +1,9 @@
 import { useEffect } from "react";
 import { useRouter } from "expo-router";
+import { LoadingScreen } from "@shapers/ui";
 import { getCurrentUser } from "@shapers/api-client";
 import { getSupabaseClient } from "@/lib/supabase";
+import { logoSource } from "@/lib/logo";
 
 export default function Index() {
   const router = useRouter();
@@ -32,5 +34,5 @@ export default function Index() {
     };
   }, [router]);
 
-  return null;
+  return <LoadingScreen logoSource={logoSource} />;
 }

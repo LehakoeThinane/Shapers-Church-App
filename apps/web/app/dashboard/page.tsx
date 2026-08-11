@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Text, View } from "react-native";
-import { Button, Screen, theme } from "@shapers/ui";
+import { Button, LoadingScreen, Screen, theme } from "@shapers/ui";
 import { getCurrentUser, signOut } from "@shapers/api-client";
 import type { CurrentUser } from "@shapers/types";
 import { getSupabaseClient } from "@/lib/supabase";
@@ -38,7 +38,7 @@ export default function DashboardPage() {
     router.replace("/login");
   }
 
-  if (loading || !me) return null;
+  if (loading || !me) return <LoadingScreen logoSource={logoSource} />;
 
   return (
     <Screen logoSource={logoSource}>

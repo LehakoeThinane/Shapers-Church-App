@@ -4,3 +4,4 @@ export * from "./TextField";
 export * from "./Logo";
 export * from "./BrandHeader";
 export * from "./Screen";
+export * from "./LoadingScreen";
