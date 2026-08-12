@@ -8,6 +8,11 @@ export type RoleAssignment = Database["public"]["Tables"]["role_assignment"]["Ro
 export type ChurchIntegration = Database["public"]["Tables"]["church_integration"]["Row"];
 export type Checkin = Database["public"]["Tables"]["checkin"]["Row"];
 export type CheckinTag = Database["public"]["Tables"]["checkin_tag"]["Row"];
+export type MinistryGroup = Database["public"]["Tables"]["ministry_group"]["Row"];
+export type GroupMember = Database["public"]["Tables"]["group_member"]["Row"];
+export type GroupMeeting = Database["public"]["Tables"]["group_meeting"]["Row"];
+export type GroupAttendance = Database["public"]["Tables"]["group_attendance"]["Row"];
+export type GroupReport = Database["public"]["Tables"]["group_report"]["Row"];
 
 export type { Role, RoleScopeType };
 
@@ -45,4 +50,25 @@ export interface CheckinPickupResult {
 export interface OpenCheckin {
   checkin: Checkin;
   child: Pick<Person, "id" | "first_name" | "last_name">;
+}
+
+// GET /groups/:id/members — a membership row with enough person info to
+// render a roster.
+export interface GroupMemberWithPerson {
+  member: GroupMember;
+  person: Pick<Person, "id" | "first_name" | "last_name">;
+}
+
+// POST /meetings/:id/attendance — one entry per person marked.
+export interface AttendanceEntry {
+  personId: string;
+  present: boolean;
+}
+
+// POST /meetings/:id/report
+export interface SubmitGroupReportInput {
+  attendanceCount?: number;
+  offeringAmount?: number;
+  testimonies?: string;
+  isException?: boolean;
 }

@@ -218,6 +218,116 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["checkin_tag"]["Insert"]>;
         Relationships: [];
       };
+      ministry_group: {
+        Row: {
+          id: string;
+          church_id: string;
+          parent_group_id: string | null;
+          group_type: "circuit" | "cell" | "department" | "committee";
+          name: string;
+          leader_person_id: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          church_id: string;
+          parent_group_id?: string | null;
+          group_type: "circuit" | "cell" | "department" | "committee";
+          name: string;
+          leader_person_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["ministry_group"]["Insert"]>;
+        Relationships: [];
+      };
+      group_member: {
+        Row: {
+          id: string;
+          church_id: string;
+          group_id: string;
+          person_id: string;
+          role: "leader" | "assistant" | "member";
+          is_primary: boolean;
+          joined_at: string;
+        };
+        Insert: {
+          id?: string;
+          church_id: string;
+          group_id: string;
+          person_id: string;
+          role?: "leader" | "assistant" | "member";
+          is_primary?: boolean;
+          joined_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["group_member"]["Insert"]>;
+        Relationships: [];
+      };
+      group_meeting: {
+        Row: {
+          id: string;
+          church_id: string;
+          group_id: string;
+          meeting_date: string;
+          location: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          church_id: string;
+          group_id: string;
+          meeting_date: string;
+          location?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["group_meeting"]["Insert"]>;
+        Relationships: [];
+      };
+      group_attendance: {
+        Row: {
+          id: string;
+          church_id: string;
+          meeting_id: string;
+          person_id: string;
+          present: boolean;
+        };
+        Insert: {
+          id?: string;
+          church_id: string;
+          meeting_id: string;
+          person_id: string;
+          present?: boolean;
+        };
+        Update: Partial<Database["public"]["Tables"]["group_attendance"]["Insert"]>;
+        Relationships: [];
+      };
+      group_report: {
+        Row: {
+          id: string;
+          church_id: string;
+          meeting_id: string;
+          attendance_count: number | null;
+          offering_amount: number | null;
+          testimonies: string | null;
+          is_exception: boolean;
+          submitted_by: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          church_id: string;
+          meeting_id: string;
+          attendance_count?: number | null;
+          offering_amount?: number | null;
+          testimonies?: string | null;
+          is_exception?: boolean;
+          submitted_by?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["group_report"]["Insert"]>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {

@@ -67,6 +67,10 @@ export default function DashboardPage() {
         )}
       </View>
 
+      <View style={{ marginBottom: theme.spacing(6) }}>
+        <Link href="/groups">Groups</Link>
+      </View>
+
       {isGuardian || canCheckIn ? (
         <View style={{ marginBottom: theme.spacing(6) }}>
           <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>Check-in</Text>
