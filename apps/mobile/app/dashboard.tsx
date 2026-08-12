@@ -82,8 +82,17 @@ export default function DashboardScreen() {
       <View style={{ marginBottom: theme.spacing(1) }}>
         <Link href="/groups">Groups</Link>
       </View>
-      <View style={{ marginBottom: theme.spacing(6) }}>
+      <View style={{ marginBottom: theme.spacing(1) }}>
         <Link href="/courses">Courses</Link>
+      </View>
+      <View style={{ marginBottom: theme.spacing(1) }}>
+        <Link href="/announcements">Announcements</Link>
+      </View>
+      <View style={{ marginBottom: theme.spacing(1) }}>
+        <Link href="/events">Events</Link>
+      </View>
+      <View style={{ marginBottom: theme.spacing(6) }}>
+        <Link href="/prayer">Prayer wall</Link>
       </View>
 
       {isGuardian || canCheckIn ? (

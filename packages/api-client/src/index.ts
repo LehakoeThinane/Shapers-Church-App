@@ -5,3 +5,4 @@ export * from "./me";
 export * from "./checkin";
 export * from "./groups";
 export * from "./courses";
+export * from "./community";

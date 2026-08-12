@@ -18,6 +18,10 @@ export type Lesson = Database["public"]["Tables"]["lesson"]["Row"];
 export type Quiz = Database["public"]["Tables"]["quiz"]["Row"];
 export type PersonProgress = Database["public"]["Tables"]["person_progress"]["Row"];
 export type PersonMilestone = Database["public"]["Tables"]["person_milestone"]["Row"];
+export type Announcement = Database["public"]["Tables"]["announcement"]["Row"];
+export type Event = Database["public"]["Tables"]["event"]["Row"];
+export type EventRsvp = Database["public"]["Tables"]["event_rsvp"]["Row"];
+export type PrayerRequest = Database["public"]["Tables"]["prayer_request"]["Row"];
 
 export type { Role, RoleScopeType };
 
@@ -97,3 +101,17 @@ export interface QuizQuestionForTaking {
 
 // { "<question_id>": "<selected_option_key>" }
 export type QuizAnswers = Record<string, string>;
+
+// GET /events — each flagged with the caller's own RSVP, if any.
+export interface EventWithRsvp {
+  event: Event;
+  myRsvp: EventRsvp | null;
+}
+
+// GET /prayer-requests — is_anonymous is enforced here, not by hiding
+// submitted_by in the row itself (admins still need it for follow-up):
+// submitterName is only populated when the viewer is allowed to see it.
+export interface PrayerRequestForDisplay {
+  request: PrayerRequest;
+  submitterName: string | null;
+}

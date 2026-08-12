@@ -462,6 +462,96 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["person_milestone"]["Insert"]>;
         Relationships: [];
       };
+      announcement: {
+        Row: {
+          id: string;
+          church_id: string;
+          title: string;
+          body: string;
+          published_at: string | null;
+          created_by: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          church_id: string;
+          title: string;
+          body: string;
+          published_at?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["announcement"]["Insert"]>;
+        Relationships: [];
+      };
+      event: {
+        Row: {
+          id: string;
+          church_id: string;
+          title: string;
+          description: string | null;
+          starts_at: string;
+          ends_at: string | null;
+          location: string | null;
+          created_by: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          church_id: string;
+          title: string;
+          description?: string | null;
+          starts_at: string;
+          ends_at?: string | null;
+          location?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["event"]["Insert"]>;
+        Relationships: [];
+      };
+      event_rsvp: {
+        Row: {
+          id: string;
+          church_id: string;
+          event_id: string;
+          person_id: string;
+          status: "going" | "maybe" | "declined";
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          church_id: string;
+          event_id: string;
+          person_id: string;
+          status?: "going" | "maybe" | "declined";
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["event_rsvp"]["Insert"]>;
+        Relationships: [];
+      };
+      prayer_request: {
+        Row: {
+          id: string;
+          church_id: string;
+          submitted_by: string | null;
+          request_text: string;
+          is_anonymous: boolean;
+          is_approved: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          church_id: string;
+          submitted_by?: string | null;
+          request_text: string;
+          is_anonymous?: boolean;
+          is_approved?: boolean;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["prayer_request"]["Insert"]>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
