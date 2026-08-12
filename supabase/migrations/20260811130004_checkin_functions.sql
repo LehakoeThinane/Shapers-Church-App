@@ -16,7 +16,14 @@ create or replace function generate_weekly_checkin_tags(
 returns integer
 language plpgsql
 security definer
-set search_path = public
+-- gen_random_bytes() comes from pgcrypto, which Supabase installs into
+-- an `extensions` schema (not `public`) on hosted projects — unlike
+-- gen_random_uuid(), which has been built into Postgres core (pg_catalog)
+-- since PG13 and needs no extension at all, which is why that one keeps
+-- working with search_path = public elsewhere in this file. Schemas that
+-- don't exist are silently skipped, so this is safe against plain
+-- Postgres too, where pgcrypto commonly installs straight into public.
+set search_path = public, extensions
 as $$
 declare
   v_count integer;
