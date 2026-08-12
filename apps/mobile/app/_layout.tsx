@@ -16,6 +16,9 @@ export default function RootLayout() {
       <Stack.Screen name="groups/[id]/index" />
       <Stack.Screen name="groups/[id]/reports" />
       <Stack.Screen name="groups/[id]/meetings/[meetingId]" />
+      <Stack.Screen name="courses/index" />
+      <Stack.Screen name="courses/[id]/index" />
+      <Stack.Screen name="courses/[id]/lessons/[lessonId]" />
     </Stack>
   );
 }

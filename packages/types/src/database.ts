@@ -328,6 +328,140 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["group_report"]["Insert"]>;
         Relationships: [];
       };
+      course: {
+        Row: {
+          id: string;
+          church_id: string;
+          title: string;
+          course_type: "sermon_series" | "program";
+          unlocks_milestone: string | null;
+          is_published: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          church_id: string;
+          title: string;
+          course_type: "sermon_series" | "program";
+          unlocks_milestone?: string | null;
+          is_published?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["course"]["Insert"]>;
+        Relationships: [];
+      };
+      lesson: {
+        Row: {
+          id: string;
+          church_id: string;
+          course_id: string;
+          position: number;
+          title: string;
+          content_type: "video" | "text" | "pdf";
+          content_url: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          church_id: string;
+          course_id: string;
+          position: number;
+          title: string;
+          content_type: "video" | "text" | "pdf";
+          content_url?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["lesson"]["Insert"]>;
+        Relationships: [];
+      };
+      quiz: {
+        Row: {
+          id: string;
+          church_id: string;
+          lesson_id: string;
+          passing_score: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          church_id: string;
+          lesson_id: string;
+          passing_score?: number;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["quiz"]["Insert"]>;
+        Relationships: [];
+      };
+      quiz_question: {
+        Row: {
+          id: string;
+          church_id: string;
+          quiz_id: string;
+          question_text: string;
+          options: { key: string; text: string }[];
+          correct_option: string;
+          position: number;
+        };
+        Insert: {
+          id?: string;
+          church_id: string;
+          quiz_id: string;
+          question_text: string;
+          options: { key: string; text: string }[];
+          correct_option: string;
+          position?: number;
+        };
+        Update: Partial<Database["public"]["Tables"]["quiz_question"]["Insert"]>;
+        Relationships: [];
+      };
+      person_progress: {
+        Row: {
+          id: string;
+          church_id: string;
+          person_id: string;
+          lesson_id: string;
+          completed_at: string | null;
+          quiz_score: number | null;
+        };
+        Insert: {
+          id?: string;
+          church_id: string;
+          person_id: string;
+          lesson_id: string;
+          completed_at?: string | null;
+          quiz_score?: number | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["person_progress"]["Insert"]>;
+        Relationships: [];
+      };
+      person_milestone: {
+        Row: {
+          id: string;
+          church_id: string;
+          person_id: string;
+          milestone_type: string;
+          achieved_at: string;
+          source_course_id: string | null;
+          sync_status: "pending" | "synced" | "failed";
+          pc_synced_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          church_id: string;
+          person_id: string;
+          milestone_type: string;
+          achieved_at?: string;
+          source_course_id?: string | null;
+          sync_status?: "pending" | "synced" | "failed";
+          pc_synced_at?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["person_milestone"]["Insert"]>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -358,6 +492,23 @@ export interface Database {
       checkin_pickup: {
         Args: { p_checkin_id: string; p_qr_token: string };
         Returns: { checkin_id: string; person_id: string; checked_out_at: string }[];
+      };
+      get_quiz_questions: {
+        Args: { p_quiz_id: string };
+        Returns: {
+          id: string;
+          question_text: string;
+          options: { key: string; text: string }[];
+          position: number;
+        }[];
+      };
+      submit_quiz_answers: {
+        Args: { p_quiz_id: string; p_answers: Record<string, string> };
+        Returns: number;
+      };
+      complete_lesson: {
+        Args: { p_lesson_id: string; p_quiz_score?: number | null };
+        Returns: string | null;
       };
     };
     Enums: Record<string, never>;

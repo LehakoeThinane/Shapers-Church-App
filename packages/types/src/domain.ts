@@ -13,6 +13,11 @@ export type GroupMember = Database["public"]["Tables"]["group_member"]["Row"];
 export type GroupMeeting = Database["public"]["Tables"]["group_meeting"]["Row"];
 export type GroupAttendance = Database["public"]["Tables"]["group_attendance"]["Row"];
 export type GroupReport = Database["public"]["Tables"]["group_report"]["Row"];
+export type Course = Database["public"]["Tables"]["course"]["Row"];
+export type Lesson = Database["public"]["Tables"]["lesson"]["Row"];
+export type Quiz = Database["public"]["Tables"]["quiz"]["Row"];
+export type PersonProgress = Database["public"]["Tables"]["person_progress"]["Row"];
+export type PersonMilestone = Database["public"]["Tables"]["person_milestone"]["Row"];
 
 export type { Role, RoleScopeType };
 
@@ -72,3 +77,23 @@ export interface SubmitGroupReportInput {
   testimonies?: string;
   isException?: boolean;
 }
+
+// GET /courses/:id — course + lessons, each flagged with the caller's
+// own completion state.
+export interface CourseWithLessons {
+  course: Course;
+  lessons: (Lesson & { progress: PersonProgress | null })[];
+}
+
+// A quiz question without the answer — see get_quiz_questions() in
+// supabase/migrations/20260812150006_courses_functions.sql, which
+// never returns correct_option.
+export interface QuizQuestionForTaking {
+  id: string;
+  question_text: string;
+  options: { key: string; text: string }[];
+  position: number;
+}
+
+// { "<question_id>": "<selected_option_key>" }
+export type QuizAnswers = Record<string, string>;

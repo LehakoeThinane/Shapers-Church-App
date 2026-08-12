@@ -5,26 +5,30 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Text, View } from "react-native";
 import { Button, LoadingScreen, Screen, theme } from "@shapers/ui";
-import { getCurrentUser, signOut } from "@shapers/api-client";
-import type { CurrentUser } from "@shapers/types";
+import { getCurrentUser, getMilestones, signOut } from "@shapers/api-client";
+import type { CurrentUser, PersonMilestone } from "@shapers/types";
 import { getSupabaseClient } from "@/lib/supabase";
 import { logoSource } from "@/lib/logo";
 
 export default function DashboardPage() {
   const router = useRouter();
   const [me, setMe] = useState<CurrentUser | null>(null);
+  const [milestones, setMilestones] = useState<PersonMilestone[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
-    getCurrentUser(getSupabaseClient())
-      .then((result) => {
+    const client = getSupabaseClient();
+    getCurrentUser(client)
+      .then(async (result) => {
         if (cancelled) return;
         if (!result) {
           router.replace("/onboarding/join");
           return;
         }
         setMe(result);
+        const m = await getMilestones(client, result.person.id);
+        if (!cancelled) setMilestones(m);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -67,8 +71,22 @@ export default function DashboardPage() {
         )}
       </View>
 
-      <View style={{ marginBottom: theme.spacing(6) }}>
+      {milestones.length > 0 ? (
+        <View style={{ marginBottom: theme.spacing(6) }}>
+          <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>Milestones</Text>
+          {milestones.map((m) => (
+            <Text key={m.id}>
+              {m.milestone_type} — {m.achieved_at}
+            </Text>
+          ))}
+        </View>
+      ) : null}
+
+      <View style={{ marginBottom: theme.spacing(1) }}>
         <Link href="/groups">Groups</Link>
+      </View>
+      <View style={{ marginBottom: theme.spacing(6) }}>
+        <Link href="/courses">Courses</Link>
       </View>
 
       {isGuardian || canCheckIn ? (
