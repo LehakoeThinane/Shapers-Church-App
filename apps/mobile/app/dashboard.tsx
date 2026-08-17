@@ -20,7 +20,7 @@ export default function DashboardScreen() {
       .then(async (result) => {
         if (cancelled) return;
         if (!result) {
-          router.replace("/onboarding/join");
+          router.replace("/onboarding/match");
           return;
         }
         setMe(result);
@@ -45,6 +45,7 @@ export default function DashboardScreen() {
   const roles = new Set(me.roleAssignments.map((ra) => ra.role));
   const canCheckIn = roles.has("admin") || roles.has("kids_staff");
   const isGuardian = roles.has("guardian");
+  const isMember = roles.has("member");
 
   return (
     <Screen logoSource={logoSource}>
@@ -83,17 +84,31 @@ export default function DashboardScreen() {
         <Link href="/groups">Groups</Link>
       </View>
       <View style={{ marginBottom: theme.spacing(1) }}>
-        <Link href="/courses">Courses</Link>
-      </View>
-      <View style={{ marginBottom: theme.spacing(1) }}>
         <Link href="/announcements">Announcements</Link>
       </View>
       <View style={{ marginBottom: theme.spacing(1) }}>
         <Link href="/events">Events</Link>
       </View>
-      <View style={{ marginBottom: theme.spacing(6) }}>
-        <Link href="/prayer">Prayer wall</Link>
-      </View>
+      {isMember ? (
+        <>
+          <View style={{ marginBottom: theme.spacing(1) }}>
+            <Link href="/courses">Courses</Link>
+          </View>
+          <View style={{ marginBottom: theme.spacing(6) }}>
+            <Link href="/prayer">Prayer wall</Link>
+          </View>
+        </>
+      ) : (
+        <View style={{ marginBottom: theme.spacing(6) }}>
+          <Link href="/become-member">Become a member</Link>
+        </View>
+      )}
+
+      {roles.has("admin") ? (
+        <View style={{ marginBottom: theme.spacing(6) }}>
+          <Link href="/admin/invite">Invite people</Link>
+        </View>
+      ) : null}
 
       {isGuardian || canCheckIn ? (
         <View style={{ marginBottom: theme.spacing(6) }}>

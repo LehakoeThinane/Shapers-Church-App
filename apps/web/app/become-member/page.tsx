@@ -1,12 +1,16 @@
+"use client";
+
 import { useState } from "react";
-import { useRouter } from "expo-router";
+import { useRouter } from "next/navigation";
 import { Text } from "react-native";
 import { Button, Screen, TextField, theme } from "@shapers/ui";
-import { findChurchByInviteCode } from "@shapers/api-client";
+import { becomeMember } from "@shapers/api-client";
 import { getSupabaseClient } from "@/lib/supabase";
 import { logoSource } from "@/lib/logo";
 
-export default function JoinChurchScreen() {
+// Manual entry point for an already-signed-up (Tier 1) person to become
+// a full member, as an alternative to clicking a /join/[code] link.
+export default function BecomeMemberPage() {
   const router = useRouter();
   const [inviteCode, setInviteCode] = useState("");
   const [loading, setLoading] = useState(false);
@@ -16,15 +20,8 @@ export default function JoinChurchScreen() {
     setError(null);
     setLoading(true);
     try {
-      const church = await findChurchByInviteCode(getSupabaseClient(), inviteCode.trim());
-      if (!church) {
-        setError("No church found for that invite code.");
-        return;
-      }
-      router.push({
-        pathname: "/onboarding/match",
-        params: { churchId: church.id, churchName: church.name },
-      });
+      await becomeMember(getSupabaseClient(), inviteCode.trim());
+      router.replace("/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -35,10 +32,10 @@ export default function JoinChurchScreen() {
   return (
     <Screen logoSource={logoSource}>
       <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: theme.spacing(2) }}>
-        Find your church
+        Become a member
       </Text>
       <Text style={{ color: theme.color.textMuted, marginBottom: theme.spacing(6) }}>
-        Enter the invite code your church gave you.
+        Enter the membership invite code your church gave you.
       </Text>
       <TextField
         label="Invite code"

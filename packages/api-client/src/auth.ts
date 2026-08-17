@@ -42,3 +42,34 @@ export async function signOut(client: ShapersClient) {
   const { error } = await client.auth.signOut();
   if (error) throw error;
 }
+
+// Kicks off the Supabase OAuth redirect flow. On web (skipBrowserRedirect
+// unset) this navigates the whole page away to Google and back to
+// `redirectTo`; the caller doesn't get a chance to run code after this
+// resolves. On mobile, pass skipBrowserRedirect so the caller gets the
+// provider URL back and can open it in an in-app browser session instead.
+export async function signInWithGoogle(
+  client: ShapersClient,
+  redirectTo: string,
+  options?: { skipBrowserRedirect?: boolean }
+) {
+  const { data, error } = await client.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo,
+      skipBrowserRedirect: options?.skipBrowserRedirect,
+      // Without this, Google only hands back an email — no name — and
+      // completeGoogleOnboarding() has nothing to auto-fill with, so it
+      // falls back to the manual /onboarding/match form. Explicitly
+      // requesting profile is what makes the silent, formless join work.
+      scopes: "email profile",
+      // Force the consent screen every time instead of silently reusing
+      // a prior authorization — otherwise someone who already approved
+      // this app under the old (email-only) scope keeps getting the old,
+      // narrower grant with no profile data even after the change above.
+      queryParams: { prompt: "consent" },
+    },
+  });
+  if (error) throw error;
+  return data;
+}

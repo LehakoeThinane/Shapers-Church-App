@@ -1,31 +1,39 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Text } from "react-native";
 import { Button, Screen, TextField, theme } from "@shapers/ui";
-import { matchPerson } from "@shapers/api-client";
+import { becomeMember, getDefaultChurch, matchPerson } from "@shapers/api-client";
 import { getSupabaseClient } from "@/lib/supabase";
 import { logoSource } from "@/lib/logo";
+import { clearPendingInviteCode, getPendingInviteCode } from "@/lib/pendingInvite";
 
 function MatchPersonForm() {
   const router = useRouter();
   const params = useSearchParams();
-  const churchId = params.get("churchId") ?? "";
-  const churchName = params.get("churchName") ?? "your church";
+  const churchIdParam = params.get("churchId");
+  const churchNameParam = params.get("churchName");
 
+  const [churchName, setChurchName] = useState(churchNameParam ?? "your church");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (churchNameParam) return;
+    // No church passed in via query params (the normal case now that
+    // signup doesn't need an invite code) — look up the one church that
+    // exists just to show its real name instead of the generic fallback.
+    getDefaultChurch(getSupabaseClient())
+      .then((church) => church && setChurchName(church.name))
+      .catch(() => {});
+  }, [churchNameParam]);
+
   async function onSubmit() {
     setError(null);
-    if (!churchId) {
-      setError("Missing church — go back and re-enter your invite code.");
-      return;
-    }
     setLoading(true);
     try {
       const client = getSupabaseClient();
@@ -33,13 +41,31 @@ function MatchPersonForm() {
         data: { user },
       } = await client.auth.getUser();
 
+      const church = churchIdParam
+        ? { id: churchIdParam }
+        : await getDefaultChurch(client);
+      if (!church) {
+        setError("Couldn't find your church — contact your church admin.");
+        return;
+      }
+
       await matchPerson(client, {
-        churchId,
+        churchId: church.id,
         firstName,
         lastName,
         phone: phone || undefined,
         email: user?.email ?? undefined,
       });
+
+      // Arrived via a membership invite link (/join/[code]) — the code
+      // sits in storage from before signup; redeem it now that onboarding
+      // (this step) is done.
+      const pendingCode = getPendingInviteCode();
+      if (pendingCode) {
+        await becomeMember(client, pendingCode);
+        clearPendingInviteCode();
+      }
+
       router.push("/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");

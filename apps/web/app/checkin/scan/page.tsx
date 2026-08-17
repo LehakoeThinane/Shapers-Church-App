@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Text, View } from "react-native";
-import { Button, Screen, TextField, theme } from "@shapers/ui";
+import { Button, GlassCard, Screen, TextField, theme } from "@shapers/ui";
 import { scanCheckin } from "@shapers/api-client";
 import type { CheckinScanResult } from "@shapers/types";
 import { getSupabaseClient } from "@/lib/supabase";
@@ -51,15 +51,7 @@ export default function ScanCheckinPage() {
       <Button title="Check in" onPress={onSubmit} loading={loading} disabled={!token.trim()} />
 
       {result ? (
-        <View
-          style={{
-            marginTop: theme.spacing(8),
-            padding: theme.spacing(5),
-            backgroundColor: theme.color.surface,
-            borderRadius: theme.radius,
-            alignItems: "center",
-          }}
-        >
+        <GlassCard style={{ marginTop: theme.spacing(8), alignItems: "center" }}>
           <Text style={{ fontSize: 18, fontWeight: "600" }}>
             {result.firstName} {result.lastName} checked in
           </Text>
@@ -69,7 +61,7 @@ export default function ScanCheckinPage() {
           <Text style={{ fontSize: 40, fontWeight: "700", letterSpacing: 4 }}>
             {result.securityCode}
           </Text>
-        </View>
+        </GlassCard>
       ) : null}
 
       <View style={{ marginTop: theme.spacing(6) }}>

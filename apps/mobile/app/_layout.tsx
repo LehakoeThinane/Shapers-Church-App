@@ -6,8 +6,10 @@ export default function RootLayout() {
       <Stack.Screen name="index" />
       <Stack.Screen name="(auth)/signup" />
       <Stack.Screen name="(auth)/login" />
-      <Stack.Screen name="onboarding/join" />
       <Stack.Screen name="onboarding/match" />
+      <Stack.Screen name="join/[code]" />
+      <Stack.Screen name="admin/invite" />
+      <Stack.Screen name="become-member" />
       <Stack.Screen name="dashboard" />
       <Stack.Screen name="checkin/index" />
       <Stack.Screen name="checkin/scan" />

@@ -24,7 +24,7 @@ export default function Index() {
 
       const me = await getCurrentUser(client);
       if (cancelled) return;
-      router.replace(me ? "/dashboard" : "/onboarding/join");
+      router.replace(me ? "/dashboard" : "/onboarding/match");
     }
 
     route();

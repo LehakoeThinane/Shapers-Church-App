@@ -93,7 +93,7 @@ export default function PickupScreen() {
                   <View
                     style={{
                       height: 220,
-                      borderRadius: theme.radius,
+                      borderRadius: theme.radius.md,
                       overflow: "hidden",
                       marginBottom: theme.spacing(3),
                     }}

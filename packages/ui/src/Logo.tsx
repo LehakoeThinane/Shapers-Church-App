@@ -17,7 +17,14 @@ export function Logo({ source, width = 140 }: LogoProps) {
       source={source}
       accessibilityLabel="Shapers Church"
       resizeMode="contain"
-      style={{ width, height: width / ASPECT_RATIO }}
+      style={{
+        width,
+        height: width / ASPECT_RATIO,
+        shadowColor: "#FFFFFF",
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.5,
+        shadowRadius: 12,
+      }}
     />
   );
 }

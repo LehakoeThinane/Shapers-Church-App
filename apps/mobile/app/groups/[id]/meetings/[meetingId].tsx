@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocalSearchParams } from "expo-router";
 import { Switch, Text, View } from "react-native";
-import { Button, LoadingScreen, Screen, TextField, theme } from "@shapers/ui";
+import { Button, GlassCard, LoadingScreen, Screen, TextField, theme } from "@shapers/ui";
 import {
   getCurrentUser,
   getGroupMembers,
@@ -134,18 +134,12 @@ export default function MeetingScreen() {
       <View style={{ marginTop: theme.spacing(8) }}>
         <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>Report</Text>
         {report ? (
-          <View
-            style={{
-              padding: theme.spacing(4),
-              backgroundColor: theme.color.surface,
-              borderRadius: theme.radius,
-            }}
-          >
+          <GlassCard>
             <Text>Attendance count: {report.attendance_count ?? "—"}</Text>
             <Text>Offering: {report.offering_amount ?? "—"}</Text>
             <Text>Testimonies: {report.testimonies || "—"}</Text>
             <Text>Exception: {report.is_exception ? "Yes" : "No"}</Text>
-          </View>
+          </GlassCard>
         ) : (
           <View>
             <TextField

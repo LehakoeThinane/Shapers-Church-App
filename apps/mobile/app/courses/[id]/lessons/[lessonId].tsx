@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocalSearchParams } from "expo-router";
 import { Text, View } from "react-native";
-import { Button, LoadingScreen, Screen, theme } from "@shapers/ui";
+import { Button, GlassCard, LoadingScreen, Screen, theme } from "@shapers/ui";
 import {
   completeLesson,
   getCourseWithLessons,
@@ -108,14 +108,7 @@ export default function LessonScreen() {
 
       {result ? (
         result.passed ? (
-          <View
-            style={{
-              padding: theme.spacing(5),
-              backgroundColor: theme.color.surface,
-              borderRadius: theme.radius,
-              marginBottom: theme.spacing(4),
-            }}
-          >
+          <GlassCard style={{ marginBottom: theme.spacing(4) }}>
             {quiz ? <Text style={{ fontWeight: "600" }}>Score: {result.score}%</Text> : null}
             <Text>Lesson complete.</Text>
             {result.milestone ? (
@@ -123,16 +116,9 @@ export default function LessonScreen() {
                 🎉 You&apos;ve unlocked: {result.milestone}
               </Text>
             ) : null}
-          </View>
+          </GlassCard>
         ) : (
-          <View
-            style={{
-              padding: theme.spacing(5),
-              backgroundColor: theme.color.surface,
-              borderRadius: theme.radius,
-              marginBottom: theme.spacing(4),
-            }}
-          >
+          <GlassCard style={{ marginBottom: theme.spacing(4) }}>
             <Text style={{ fontWeight: "600" }}>Score: {result.score}%</Text>
             <Text>Needs {quiz?.passing_score}% to pass — try again.</Text>
             <View style={{ marginTop: theme.spacing(3) }}>
@@ -145,7 +131,7 @@ export default function LessonScreen() {
                 }}
               />
             </View>
-          </View>
+          </GlassCard>
         )
       ) : quiz ? (
         questions ? (

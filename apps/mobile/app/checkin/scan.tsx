@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { Link } from "expo-router";
 import { Text, View } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
-import { Button, Screen, TextField, theme } from "@shapers/ui";
+import { Button, GlassCard, Screen, TextField, theme } from "@shapers/ui";
 import { scanCheckin } from "@shapers/api-client";
 import type { CheckinScanResult } from "@shapers/types";
 import { getSupabaseClient } from "@/lib/supabase";
@@ -58,7 +58,7 @@ export default function ScanCheckinScreen() {
         <View
           style={{
             height: 260,
-            borderRadius: theme.radius,
+            borderRadius: theme.radius.md,
             overflow: "hidden",
             marginBottom: theme.spacing(4),
           }}
@@ -98,15 +98,7 @@ export default function ScanCheckinScreen() {
       />
 
       {result ? (
-        <View
-          style={{
-            marginTop: theme.spacing(8),
-            padding: theme.spacing(5),
-            backgroundColor: theme.color.surface,
-            borderRadius: theme.radius,
-            alignItems: "center",
-          }}
-        >
+        <GlassCard style={{ marginTop: theme.spacing(8), alignItems: "center" }}>
           <Text style={{ fontSize: 18, fontWeight: "600" }}>
             {result.firstName} {result.lastName} checked in
           </Text>
@@ -116,7 +108,7 @@ export default function ScanCheckinScreen() {
           <Text style={{ fontSize: 40, fontWeight: "700", letterSpacing: 4 }}>
             {result.securityCode}
           </Text>
-        </View>
+        </GlassCard>
       ) : null}
 
       <View style={{ marginTop: theme.spacing(6) }}>

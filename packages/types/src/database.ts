@@ -559,6 +559,10 @@ export interface Database {
         Args: { p_invite_code: string };
         Returns: { id: string; name: string }[];
       };
+      get_default_church: {
+        Args: Record<string, never>;
+        Returns: { id: string; name: string }[];
+      };
       onboard_match_person: {
         Args: {
           p_church_id: string;
@@ -568,6 +572,10 @@ export interface Database {
           p_email?: string | null;
         };
         Returns: string;
+      };
+      onboard_become_member: {
+        Args: { p_invite_code: string };
+        Returns: undefined;
       };
       checkin_scan: {
         Args: { p_qr_token: string };
