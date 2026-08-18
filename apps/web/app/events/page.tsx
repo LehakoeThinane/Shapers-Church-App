@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { View } from "react-native";
+import { Image, View } from "react-native";
 import { Button, GlassCard, LoadingScreen, Text, theme } from "@shapers/ui";
 import { getCurrentUser, getEvents, rsvpToEvent } from "@shapers/api-client";
 import type { CurrentUser, EventWithRsvp } from "@shapers/types";
@@ -14,6 +14,18 @@ const STATUSES: { key: "going" | "maybe" | "declined"; label: string }[] = [
   { key: "maybe", label: "Maybe" },
   { key: "declined", label: "Can't go" },
 ];
+
+// Hardcoded poster-per-event, matched by title — event has no image
+// column (neither does announcement), and adding real image management
+// is a bigger piece than this needs right now. Swap for a real
+// event.poster_url column once there's an admin screen to upload one;
+// same stopgap approach as the dashboard's series banner. aspectRatio is
+// each poster's real dimensions (they're not uniform — one's a square
+// Instagram post, the other's a 4:5 portrait flyer).
+const EVENT_POSTERS: Record<string, { uri: string; aspectRatio: number }> = {
+  "Expository Preaching Academy 2026": { uri: "/epa-poster.jpg", aspectRatio: 1254 / 1254 },
+  "Shapers 2026 Conference": { uri: "/conference-poster.jpg", aspectRatio: 1281 / 1600 },
+};
 
 export default function EventsPage() {
   const [me, setMe] = useState<CurrentUser | null>(null);
@@ -64,8 +76,25 @@ export default function EventsPage() {
       {events.length === 0 ? (
         <Text style={{ color: theme.color.textMuted }}>No upcoming events.</Text>
       ) : (
-        events.map(({ event, myRsvp }) => (
-          <GlassCard key={event.id} style={{ marginBottom: theme.spacing(3) }}>
+        events.map(({ event, myRsvp }) => {
+          const poster = EVENT_POSTERS[event.title];
+          return (
+          <GlassCard key={event.id} style={{ marginBottom: theme.spacing(4) }}>
+            {poster ? (
+              // react-native's Image type has no `alt` prop (only RN-Web's runtime does, via accessibilityLabel) — see components/QrCode.tsx
+              // eslint-disable-next-line jsx-a11y/alt-text
+              <Image
+                source={{ uri: poster.uri }}
+                accessibilityLabel={`${event.title} poster`}
+                resizeMode="cover"
+                style={{
+                  width: "100%",
+                  aspectRatio: poster.aspectRatio,
+                  borderRadius: theme.radius.md,
+                  marginBottom: theme.spacing(3),
+                }}
+              />
+            ) : null}
             <Text style={{ fontWeight: "600" }}>{event.title}</Text>
             <Text style={{ color: theme.color.textMuted, marginBottom: theme.spacing(2) }}>
               {new Date(event.starts_at).toLocaleString()}
@@ -84,7 +113,8 @@ export default function EventsPage() {
               ))}
             </View>
           </GlassCard>
-        ))
+          );
+        })
       )}
     </AuthenticatedScreen>
   );
