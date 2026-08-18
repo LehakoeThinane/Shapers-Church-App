@@ -23,6 +23,8 @@
 // synced/failed) around it *is* the tested, load-bearing part.
 
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { requireSharedSecret } from "../_shared/webhookAuth.ts";
+import { decryptToken } from "../_shared/tokenCrypto.ts";
 
 interface CheckinWebhookPayload {
   type: "INSERT";
@@ -37,6 +39,9 @@ interface CheckinWebhookPayload {
 }
 
 Deno.serve(async (req) => {
+  const authError = requireSharedSecret(req, "PC_CHECKIN_SYNC_WEBHOOK_SECRET");
+  if (authError) return authError;
+
   const payload = (await req.json()) as CheckinWebhookPayload;
   const checkin = payload.record;
 
@@ -85,7 +90,7 @@ Deno.serve(async (req) => {
     // the schema) — this is the actual integration gap blocking a real
     // PC write-back, not just missing credentials. Left as the next
     // concrete step for whoever wires up a real PC connection.
-    const token = decryptToken(integration.encrypted_token);
+    const token = await decryptToken(integration.encrypted_token);
     const response = await fetch(
       `https://api.planningcenteronline.com/check-ins/v2/persons/${person.pc_person_id}/check_ins`,
       {
@@ -129,11 +134,3 @@ Deno.serve(async (req) => {
     );
   }
 });
-
-// Placeholder — church_integration.encrypted_token needs real encryption
-// at rest (e.g. via Supabase Vault) before this is production-ready.
-// Not implemented: no real Planning Center token exists yet to decide
-// the encryption scheme against.
-function decryptToken(encryptedToken: string): string {
-  return encryptedToken;
-}

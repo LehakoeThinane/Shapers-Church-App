@@ -23,6 +23,8 @@
 // a placeholder for that decision.
 
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { requireSharedSecret } from "../_shared/webhookAuth.ts";
+import { decryptToken } from "../_shared/tokenCrypto.ts";
 
 interface MilestoneWebhookPayload {
   type: "INSERT";
@@ -37,6 +39,9 @@ interface MilestoneWebhookPayload {
 }
 
 Deno.serve(async (req) => {
+  const authError = requireSharedSecret(req, "PC_MILESTONE_SYNC_WEBHOOK_SECRET");
+  if (authError) return authError;
+
   const payload = (await req.json()) as MilestoneWebhookPayload;
   const milestone = payload.record;
 
@@ -73,7 +78,7 @@ Deno.serve(async (req) => {
       throw new Error("person has no linked Planning Center record (pc_person_id is null)");
     }
 
-    const token = decryptToken(integration.encrypted_token);
+    const token = await decryptToken(integration.encrypted_token);
     await applyMilestoneToPlanningCenter(token, person.pc_person_id, milestone.milestone_type);
 
     await supabase
@@ -103,8 +108,4 @@ async function applyMilestoneToPlanningCenter(
   _milestoneType: string
 ): Promise<void> {
   throw new Error("applyMilestoneToPlanningCenter is not implemented yet");
-}
-
-function decryptToken(encryptedToken: string): string {
-  return encryptedToken;
 }

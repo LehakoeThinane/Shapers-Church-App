@@ -1,13 +1,24 @@
 import type { Church } from "@shapers/types";
 import type { ShapersClient } from "./client";
 
-// GET /admin/integrations-ish — the caller's own church row, including
-// invite_code. Regular RLS (church_select_own) already allows any
-// member to read their own church, so this needs no RPC.
+// GET /admin/integrations-ish — the caller's own church row. invite_code
+// is deliberately NOT included: column-level privileges (see
+// supabase/migrations/20260818090200_church_invite_code_admin_only.sql)
+// mean `authenticated` can't select it here regardless of what's asked
+// for — use getChurchInviteCode() instead, which checks the caller is an
+// admin of this church before returning it.
 export async function getChurch(client: ShapersClient, churchId: string): Promise<Church | null> {
   const { data, error } = await client.from("church").select("*").eq("id", churchId).maybeSingle();
   if (error) throw error;
   return data;
+}
+
+// Admin-only. See get_church_invite_code() in
+// supabase/migrations/20260818090200_church_invite_code_admin_only.sql.
+export async function getChurchInviteCode(client: ShapersClient, churchId: string): Promise<string> {
+  const { data, error } = await client.rpc("get_church_invite_code", { p_church_id: churchId });
+  if (error) throw error;
+  return data as string;
 }
 
 // POST /onboarding/join-church

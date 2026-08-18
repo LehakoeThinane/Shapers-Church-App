@@ -8,8 +8,12 @@
 // this function -> Cron, e.g. "0 0 * * 1" for every Monday) rather than
 // requiring pg_cron to be enabled on the database itself.
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { requireSharedSecret } from "../_shared/webhookAuth.ts";
 
-Deno.serve(async (_req) => {
+Deno.serve(async (req) => {
+  const authError = requireSharedSecret(req, "QR_TOKEN_GENERATE_CRON_SECRET");
+  if (authError) return authError;
+
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!

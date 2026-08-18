@@ -608,6 +608,10 @@ export interface Database {
         Args: { p_lesson_id: string; p_quiz_score?: number | null };
         Returns: string | null;
       };
+      get_church_invite_code: {
+        Args: { p_church_id: string };
+        Returns: string;
+      };
     };
     Enums: Record<string, never>;
   };

@@ -39,6 +39,20 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter web lint
 
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.6.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
+
   build-web:
     runs-on: ubuntu-latest
     steps:
@@ -86,7 +100,13 @@ jobs:
         run: |
           PGPASSWORD=postgres psql -h localhost -U postgres -c "
             create schema auth;
-            create table auth.users (id uuid primary key default gen_random_uuid());
+            create table auth.users (
+              id uuid primary key default gen_random_uuid(),
+              email text,
+              phone text,
+              email_confirmed_at timestamptz,
+              phone_confirmed_at timestamptz
+            );
             create or replace function auth.uid() returns uuid language sql stable as \$\$ select null::uuid \$\$;
             create role authenticated;
             create role anon;

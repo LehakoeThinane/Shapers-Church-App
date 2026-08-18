@@ -24,10 +24,30 @@ enable_signup = true
 
 [auth.email]
 enable_signup = true
-enable_confirmations = false
+# Must stay true: onboard_match_person() (see
+# supabase/migrations/20260818090000_onboard_match_person_verified_identity.sql)
+# only trusts an email for identity matching once Supabase has actually
+# confirmed the caller owns it. With confirmations off, email_confirmed_at
+# gets set for everyone at signup regardless of real ownership, silently
+# defeating that check.
+enable_confirmations = true
 
 [storage]
 enabled = true
 
 [edge_runtime]
 enabled = true
+
+# pc-checkin-sync, pc-milestone-sync, and qr-token-generate are invoked by
+# Database Webhooks / Scheduled Functions, not signed-in users — verify_jwt
+# would otherwise only require *a* valid Supabase JWT, and the public anon
+# key shipped in every client bundle satisfies that trivially. Each checks
+# its own shared secret instead (supabase/functions/_shared/webhookAuth.ts).
+[functions.pc-checkin-sync]
+verify_jwt = false
+
+[functions.pc-milestone-sync]
+verify_jwt = false
+
+[functions.qr-token-generate]
+verify_jwt = false
