@@ -8,8 +8,8 @@
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
-    "react": "*",
-    "react-native": "*"
+    "react": "^18.3.0",
+    "react-native": "^0.76.0"
   },
   "dependencies": {
     "expo-blur": "~14.0.3",

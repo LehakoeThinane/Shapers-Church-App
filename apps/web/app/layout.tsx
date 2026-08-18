@@ -13,6 +13,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         style={{
           margin: 0,
           fontFamily: "system-ui, -apple-system, sans-serif",
+          // Can't import theme.color.background/text from @shapers/ui here
+          // (tried it — RootLayout is a Server Component, and the package's
+          // barrel index.ts also exports client-only components like
+          // TextField, which use useState and fail Next's server/client
+          // boundary check on import). Keep these in sync with
+          // packages/ui/src/theme.ts `background`/`text` by hand.
           backgroundColor: "#050506",
           // Text elements that don't set their own `color` (e.g. headings
           // using only fontSize/fontWeight) otherwise fall back to the

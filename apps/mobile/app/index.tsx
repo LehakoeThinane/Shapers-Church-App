@@ -1,12 +1,14 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
-import { LoadingScreen } from "@shapers/ui";
+import { Text } from "react-native";
+import { LoadingScreen, Screen, theme } from "@shapers/ui";
 import { getCurrentUser } from "@shapers/api-client";
 import { getSupabaseClient } from "@/lib/supabase";
 import { logoSource } from "@/lib/logo";
 
 export default function Index() {
   const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -27,12 +29,22 @@ export default function Index() {
       router.replace(me ? "/dashboard" : "/onboarding/match");
     }
 
-    route();
+    route().catch((err) => {
+      if (!cancelled) setError(err instanceof Error ? err.message : "Something went wrong");
+    });
 
     return () => {
       cancelled = true;
     };
   }, [router]);
+
+  if (error) {
+    return (
+      <Screen logoSource={logoSource}>
+        <Text style={{ color: theme.color.danger }}>{error}</Text>
+      </Screen>
+    );
+  }
 
   return <LoadingScreen logoSource={logoSource} />;
 }
