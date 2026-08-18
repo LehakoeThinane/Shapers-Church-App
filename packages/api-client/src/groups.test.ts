@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getCircuitReports, getGroupMembers } from "./groups";
+import { addGroupMember, createGroup, getCircuitReports, getGroupMembers, removeGroupMember } from "./groups";
 import { mockClientFromTables, ok } from "./test-utils";
 
 describe("getGroupMembers", () => {
@@ -69,5 +69,39 @@ describe("getCircuitReports", () => {
     });
 
     await expect(getCircuitReports(client, "circuit-1")).resolves.toEqual([]);
+  });
+});
+
+describe("createGroup", () => {
+  it("inserts a new group", async () => {
+    const created = { id: "g1", church_id: "c1", name: "Cell 1", group_type: "cell" };
+    const client = mockClientFromTables({ ministry_group: ok(created) });
+
+    await expect(
+      createGroup(client, { churchId: "c1", name: "Cell 1", groupType: "cell" })
+    ).resolves.toEqual(created);
+  });
+});
+
+describe("addGroupMember", () => {
+  it("inserts a member with the given role", async () => {
+    const created = { id: "gm1", group_id: "g1", person_id: "p1", role: "leader" };
+    const client = mockClientFromTables({ group_member: ok(created) });
+
+    await expect(addGroupMember(client, "c1", "g1", "p1", "leader")).resolves.toEqual(created);
+  });
+
+  it("defaults to the member role", async () => {
+    const created = { id: "gm1", group_id: "g1", person_id: "p1", role: "member" };
+    const client = mockClientFromTables({ group_member: ok(created) });
+
+    await expect(addGroupMember(client, "c1", "g1", "p1")).resolves.toEqual(created);
+  });
+});
+
+describe("removeGroupMember", () => {
+  it("deletes the group member row", async () => {
+    const client = mockClientFromTables({ group_member: ok(null) });
+    await expect(removeGroupMember(client, "gm1")).resolves.toBeUndefined();
   });
 });

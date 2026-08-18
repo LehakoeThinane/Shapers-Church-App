@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getEvents, getPrayerRequests } from "./community";
+import { createAnnouncement, createEvent, getEvents, getPrayerRequests } from "./community";
 import { mockClientFromTables, ok } from "./test-utils";
 
 describe("getEvents", () => {
@@ -58,5 +58,36 @@ describe("getPrayerRequests", () => {
     });
 
     await expect(getPrayerRequests(client)).resolves.toEqual([{ request, submitterName: null }]);
+  });
+});
+
+describe("createAnnouncement", () => {
+  it("sets published_at when publishNow is true", async () => {
+    const created = { id: "a1", church_id: "c1", title: "T", body: "B", published_at: "2026-08-01T00:00:00Z" };
+    const client = mockClientFromTables({ announcement: ok(created) });
+
+    await expect(
+      createAnnouncement(client, { churchId: "c1", title: "T", body: "B", publishNow: true })
+    ).resolves.toEqual(created);
+  });
+
+  it("leaves published_at null when publishNow is not set (draft)", async () => {
+    const created = { id: "a1", church_id: "c1", title: "T", body: "B", published_at: null };
+    const client = mockClientFromTables({ announcement: ok(created) });
+
+    await expect(createAnnouncement(client, { churchId: "c1", title: "T", body: "B" })).resolves.toEqual(
+      created
+    );
+  });
+});
+
+describe("createEvent", () => {
+  it("inserts a new event", async () => {
+    const created = { id: "e1", church_id: "c1", title: "Sunday Service", starts_at: "2026-08-20T09:00:00Z" };
+    const client = mockClientFromTables({ event: ok(created) });
+
+    await expect(
+      createEvent(client, { churchId: "c1", title: "Sunday Service", startsAt: "2026-08-20T09:00:00Z" })
+    ).resolves.toEqual(created);
   });
 });

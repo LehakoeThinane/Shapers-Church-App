@@ -1,5 +1,6 @@
 import type {
   AttendanceEntry,
+  GroupMember,
   GroupMemberWithPerson,
   GroupMeeting,
   GroupReport,
@@ -9,6 +10,7 @@ import type {
 import type { ShapersClient } from "./client";
 
 export type GroupType = "circuit" | "cell" | "department" | "committee";
+export type GroupMemberRole = "leader" | "assistant" | "member";
 
 // GET /groups?type=...
 // RLS already scopes this to what the caller can see (admin: all,
@@ -202,4 +204,52 @@ export async function getCircuitReports(
     if (!meeting || !group) return [];
     return [{ report, meeting, group }];
   });
+}
+
+export interface CreateGroupInput {
+  churchId: string;
+  name: string;
+  groupType: GroupType;
+  parentGroupId?: string;
+  leaderPersonId?: string;
+}
+
+// POST /groups (admin only, per group_admin_all RLS)
+export async function createGroup(client: ShapersClient, input: CreateGroupInput): Promise<MinistryGroup> {
+  const { data, error } = await client
+    .from("ministry_group")
+    .insert({
+      church_id: input.churchId,
+      name: input.name,
+      group_type: input.groupType,
+      parent_group_id: input.parentGroupId ?? null,
+      leader_person_id: input.leaderPersonId ?? null,
+    })
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+// POST /groups/:id/members (admin only, per group_member_admin_all RLS)
+export async function addGroupMember(
+  client: ShapersClient,
+  churchId: string,
+  groupId: string,
+  personId: string,
+  role: GroupMemberRole = "member"
+): Promise<GroupMember> {
+  const { data, error } = await client
+    .from("group_member")
+    .insert({ church_id: churchId, group_id: groupId, person_id: personId, role })
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+// DELETE /groups/members/:id (admin only, per group_member_admin_all RLS)
+export async function removeGroupMember(client: ShapersClient, groupMemberId: string): Promise<void> {
+  const { error } = await client.from("group_member").delete().eq("id", groupMemberId);
+  if (error) throw error;
 }

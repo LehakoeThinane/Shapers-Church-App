@@ -1,4 +1,4 @@
-import type { Announcement, EventWithRsvp, PrayerRequest, PrayerRequestForDisplay } from "@shapers/types";
+import type { Announcement, Event, EventWithRsvp, PrayerRequest, PrayerRequestForDisplay } from "@shapers/types";
 import type { ShapersClient } from "./client";
 
 // GET /announcements — RLS already restricts to published ones.
@@ -106,4 +106,57 @@ export async function submitPrayerRequest(
 export async function approvePrayerRequest(client: ShapersClient, requestId: string): Promise<void> {
   const { error } = await client.from("prayer_request").update({ is_approved: true }).eq("id", requestId);
   if (error) throw error;
+}
+
+export interface CreateAnnouncementInput {
+  churchId: string;
+  title: string;
+  body: string;
+  publishNow?: boolean;
+}
+
+// POST /announcements (admin only, per announcement_admin_all RLS)
+export async function createAnnouncement(
+  client: ShapersClient,
+  input: CreateAnnouncementInput
+): Promise<Announcement> {
+  const { data, error } = await client
+    .from("announcement")
+    .insert({
+      church_id: input.churchId,
+      title: input.title,
+      body: input.body,
+      published_at: input.publishNow ? new Date().toISOString() : null,
+    })
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export interface CreateEventInput {
+  churchId: string;
+  title: string;
+  description?: string;
+  startsAt: string;
+  endsAt?: string;
+  location?: string;
+}
+
+// POST /events (admin only, per event_admin_all RLS)
+export async function createEvent(client: ShapersClient, input: CreateEventInput): Promise<Event> {
+  const { data, error } = await client
+    .from("event")
+    .insert({
+      church_id: input.churchId,
+      title: input.title,
+      description: input.description ?? null,
+      starts_at: input.startsAt,
+      ends_at: input.endsAt ?? null,
+      location: input.location ?? null,
+    })
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
 }
