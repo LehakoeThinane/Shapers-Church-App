@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocalSearchParams } from "expo-router";
-import { Text, View } from "react-native";
-import { Button, GlassCard, LoadingScreen, Screen, theme } from "@shapers/ui";
+import { View } from "react-native";
+import { Button, GlassCard, LoadingScreen, Screen, Text, theme } from "@shapers/ui";
 import {
   completeLesson,
   getCourseWithLessons,

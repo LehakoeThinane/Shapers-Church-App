@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "expo-router";
 import * as Clipboard from "expo-clipboard";
-import { Text, View } from "react-native";
-import { Button, GlassCard, LoadingScreen, Screen, theme } from "@shapers/ui";
+import { View } from "react-native";
+import { Button, GlassCard, LoadingScreen, Screen, Text, theme } from "@shapers/ui";
 import { getChurch, getChurchInviteCode, getCurrentUser } from "@shapers/api-client";
 import type { Church, CurrentUser } from "@shapers/types";
 import { getSupabaseClient } from "@/lib/supabase";

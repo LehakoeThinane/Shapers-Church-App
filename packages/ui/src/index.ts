@@ -2,6 +2,7 @@ export * from "./theme";
 export * from "./AmbientBackground";
 export * from "./GlassCard";
 export * from "./Button";
+export * from "./Text";
 export * from "./TextField";
 export * from "./Logo";
 export * from "./BrandHeader";

@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Text } from "react-native";
-import { LoadingScreen, Screen, theme } from "@shapers/ui";
+import { LoadingScreen, Screen, Text, theme } from "@shapers/ui";
 import { becomeMember, findChurchByInviteCode, getCurrentUser } from "@shapers/api-client";
 import { getSupabaseClient } from "@/lib/supabase";
 import { logoSource } from "@/lib/logo";

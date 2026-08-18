@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { Text } from "react-native";
-import { Button, Screen, TextField, theme } from "@shapers/ui";
+import { Button, Screen, Text, TextField, theme } from "@shapers/ui";
 import { becomeMember, getDefaultChurch, matchPerson } from "@shapers/api-client";
 import { getSupabaseClient } from "@/lib/supabase";
 import { logoSource } from "@/lib/logo";

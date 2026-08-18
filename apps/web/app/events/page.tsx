@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Text, View } from "react-native";
-import { Button, LoadingScreen, Screen, theme } from "@shapers/ui";
+import { View } from "react-native";
+import { Button, LoadingScreen, Screen, Text, theme } from "@shapers/ui";
 import { getCurrentUser, getEvents, rsvpToEvent } from "@shapers/api-client";
 import type { CurrentUser, EventWithRsvp } from "@shapers/types";
 import { getSupabaseClient } from "@/lib/supabase";

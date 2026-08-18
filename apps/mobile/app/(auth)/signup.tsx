@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useRouter, Link } from "expo-router";
-import { Text, View } from "react-native";
-import { Button, Screen, TextField, theme } from "@shapers/ui";
+import { View } from "react-native";
+import { Button, Screen, Text, TextField, theme } from "@shapers/ui";
 import {
   becomeMember,
   completeGoogleOnboarding,

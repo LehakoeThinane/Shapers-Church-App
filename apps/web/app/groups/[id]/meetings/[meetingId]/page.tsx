@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { Switch, Text, View } from "react-native";
-import { Button, GlassCard, LoadingScreen, Screen, TextField, theme } from "@shapers/ui";
+import { Switch, View } from "react-native";
+import { Button, GlassCard, LoadingScreen, Screen, Text, TextField, theme } from "@shapers/ui";
 import {
   getCurrentUser,
   getGroupMembers,

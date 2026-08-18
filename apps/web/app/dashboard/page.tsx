@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Text, View } from "react-native";
-import { Button, LoadingScreen, Screen, theme } from "@shapers/ui";
+import { View } from "react-native";
+import { Button, LoadingScreen, Screen, Text, theme } from "@shapers/ui";
 import { getCurrentUser, getMilestones, signOut } from "@shapers/api-client";
 import type { CurrentUser, PersonMilestone } from "@shapers/types";
 import { getSupabaseClient } from "@/lib/supabase";

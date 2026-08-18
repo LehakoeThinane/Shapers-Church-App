@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import type { ShapersClient } from "./client";
-import { signIn, signUp } from "./auth";
+import { extractOAuthCodeFromUrl, signIn, signUp } from "./auth";
 
 describe("signUp", () => {
   it("throws when given neither email nor phone", async () => {
@@ -53,5 +53,32 @@ describe("signIn", () => {
     await expect(signIn(client, { email: "a@b.com", password: "wrong" })).rejects.toThrow(
       "invalid credentials"
     );
+  });
+});
+
+describe("extractOAuthCodeFromUrl", () => {
+  it("extracts the code from a PKCE redirect", () => {
+    expect(extractOAuthCodeFromUrl("shapers://auth/callback?code=abc123")).toBe("abc123");
+  });
+
+  it("extracts the code when other query params are present", () => {
+    expect(
+      extractOAuthCodeFromUrl("shapers://auth/callback?state=xyz&code=abc123&sb_flow_id=flow-1")
+    ).toBe("abc123");
+  });
+
+  it("ignores a trailing fragment after the query string", () => {
+    expect(extractOAuthCodeFromUrl("shapers://auth/callback?code=abc123#some-fragment")).toBe("abc123");
+  });
+
+  it("returns null when there is no query string at all", () => {
+    expect(extractOAuthCodeFromUrl("shapers://auth/callback")).toBeNull();
+  });
+
+  it("returns null when the query string has no code param", () => {
+    // The class of URL a stale implicit-flow redirect (or a cancelled/
+    // errored OAuth attempt) would produce — must not be mistaken for a
+    // successful PKCE callback.
+    expect(extractOAuthCodeFromUrl("shapers://auth/callback?error=access_denied")).toBeNull();
   });
 });

@@ -73,3 +73,14 @@ export async function signInWithGoogle(
   if (error) throw error;
   return data;
 }
+
+// PKCE's redirect carries a single-use auth code as a query param, e.g.
+// shapers://auth/callback?code=..., rather than tokens in the fragment —
+// used by mobile's googleAuth.ts, which has no browser to auto-detect it
+// the way the web client's detectSessionInUrl does. Exported (and tested)
+// from here rather than living in apps/mobile, which has no test runner.
+export function extractOAuthCodeFromUrl(url: string): string | null {
+  const query = url.split("?")[1]?.split("#")[0];
+  if (!query) return null;
+  return new URLSearchParams(query).get("code");
+}

@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { Text, View } from "react-native";
-import { LoadingScreen, Screen, theme } from "@shapers/ui";
+import { View } from "react-native";
+import { LoadingScreen, Screen, Text, theme } from "@shapers/ui";
 import { getCircuitReports } from "@shapers/api-client";
 import type { GroupMeeting, GroupReport, MinistryGroup } from "@shapers/types";
 import { getSupabaseClient } from "@/lib/supabase";

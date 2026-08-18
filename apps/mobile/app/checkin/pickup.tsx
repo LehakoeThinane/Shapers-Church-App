@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "expo-router";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
-import { Button, LoadingScreen, Screen, TextField, theme } from "@shapers/ui";
+import { Button, LoadingScreen, Screen, Text, TextField, theme } from "@shapers/ui";
 import { confirmPickup, getOpenCheckins } from "@shapers/api-client";
 import type { OpenCheckin } from "@shapers/types";
 import { getSupabaseClient } from "@/lib/supabase";

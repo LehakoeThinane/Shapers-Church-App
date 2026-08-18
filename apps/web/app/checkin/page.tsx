@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Text, View } from "react-native";
-import { LoadingScreen, Screen, theme } from "@shapers/ui";
+import { View } from "react-native";
+import { LoadingScreen, Screen, Text, theme } from "@shapers/ui";
 import { getMyCheckinTags } from "@shapers/api-client";
 import type { MyCheckinTag } from "@shapers/types";
 import { getSupabaseClient } from "@/lib/supabase";

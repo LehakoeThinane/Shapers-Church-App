@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "expo-router";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import QRCode from "react-native-qrcode-svg";
-import { LoadingScreen, Screen, theme } from "@shapers/ui";
+import { LoadingScreen, Screen, Text, theme } from "@shapers/ui";
 import { getMyCheckinTags } from "@shapers/api-client";
 import type { MyCheckinTag } from "@shapers/types";
 import { getSupabaseClient } from "@/lib/supabase";

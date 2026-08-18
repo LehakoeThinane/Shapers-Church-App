@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocalSearchParams } from "expo-router";
-import { Switch, Text, View } from "react-native";
-import { Button, GlassCard, LoadingScreen, Screen, TextField, theme } from "@shapers/ui";
+import { Switch, View } from "react-native";
+import { Button, GlassCard, LoadingScreen, Screen, Text, TextField, theme } from "@shapers/ui";
 import {
   getCurrentUser,
   getGroupMembers,

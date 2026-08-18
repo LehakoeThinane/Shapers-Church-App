@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { Text, View } from "react-native";
-import { Button, GlassCard, LoadingScreen, Screen, theme } from "@shapers/ui";
+import { View } from "react-native";
+import { Button, GlassCard, LoadingScreen, Screen, Text, theme } from "@shapers/ui";
 import {
   completeLesson,
   getCourseWithLessons,

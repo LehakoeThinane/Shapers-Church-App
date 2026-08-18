@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocalSearchParams } from "expo-router";
-import { Text, View } from "react-native";
-import { LoadingScreen, Screen, theme } from "@shapers/ui";
+import { View } from "react-native";
+import { LoadingScreen, Screen, Text, theme } from "@shapers/ui";
 import { getCircuitReports } from "@shapers/api-client";
 import type { GroupMeeting, GroupReport, MinistryGroup } from "@shapers/types";
 import { getSupabaseClient } from "@/lib/supabase";

@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Text, View } from "react-native";
-import { Button, Screen, TextField, theme } from "@shapers/ui";
+import { View } from "react-native";
+import { Button, Screen, Text, TextField, theme } from "@shapers/ui";
 import {
   becomeMember,
   getDefaultChurch,

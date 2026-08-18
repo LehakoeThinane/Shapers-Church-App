@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Text, View } from "react-native";
-import { Button, GlassCard, Screen, TextField, theme } from "@shapers/ui";
+import { View } from "react-native";
+import { Button, GlassCard, Screen, Text, TextField, theme } from "@shapers/ui";
 import { scanCheckin } from "@shapers/api-client";
 import type { CheckinScanResult } from "@shapers/types";
 import { getSupabaseClient } from "@/lib/supabase";

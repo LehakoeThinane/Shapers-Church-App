@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "expo-router";
-import { Text, View } from "react-native";
-import { LoadingScreen, Screen, theme } from "@shapers/ui";
+import { View } from "react-native";
+import { LoadingScreen, Screen, Text, theme } from "@shapers/ui";
 import { getGroups } from "@shapers/api-client";
 import type { MinistryGroup } from "@shapers/types";
 import { getSupabaseClient } from "@/lib/supabase";

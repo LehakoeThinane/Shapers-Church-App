@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Text, View } from "react-native";
-import { Button, GlassCard, LoadingScreen, Screen, theme } from "@shapers/ui";
+import { View } from "react-native";
+import { Button, GlassCard, LoadingScreen, Screen, Text, theme } from "@shapers/ui";
 import { getChurch, getChurchInviteCode, getCurrentUser } from "@shapers/api-client";
 import type { Church, CurrentUser } from "@shapers/types";
 import { getSupabaseClient } from "@/lib/supabase";
