@@ -5,8 +5,8 @@
   "main": "expo-router/entry",
   "scripts": {
     "dev": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web",
     "build": "expo export",
     "typecheck": "tsc --noEmit"
@@ -20,9 +20,11 @@
     "@shapers/ui": "workspace:*",
     "@supabase/supabase-js": "^2.47.0",
     "expo": "~52.0.0",
+    "expo-asset": "~11.0.5",
     "expo-blur": "~14.0.3",
     "expo-camera": "~16.0.0",
     "expo-clipboard": "~7.0.0",
+    "expo-constants": "~17.0.8",
     "expo-linear-gradient": "~14.0.2",
     "expo-linking": "~7.0.5",
     "expo-router": "~4.0.0",
@@ -41,6 +43,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.25.0",
+    "@react-native-community/cli": "15.1.3",
     "@types/node": "^22.10.0",
     "@types/react": "^18.3.0",
     "babel-preset-expo": "~12.0.0",

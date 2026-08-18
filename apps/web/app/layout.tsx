@@ -14,6 +14,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           margin: 0,
           fontFamily: "system-ui, -apple-system, sans-serif",
           backgroundColor: "#050506",
+          // Text elements that don't set their own `color` (e.g. headings
+          // using only fontSize/fontWeight) otherwise fall back to the
+          // browser's default black — invisible against this dark
+          // background. CSS `color` is inherited, so this covers every
+          // such element in one place instead of one-by-one.
+          color: "#F5F5F7",
         }}
       >
         {children}
