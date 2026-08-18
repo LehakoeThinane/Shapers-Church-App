@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { View } from "react-native";
+import { Image, View } from "react-native";
 import { GlassCard, LoadingScreen, Text, theme } from "@shapers/ui";
 import { getCurrentUser, getMilestones } from "@shapers/api-client";
 import type { CurrentUser, PersonMilestone } from "@shapers/types";
@@ -48,6 +48,30 @@ export default function DashboardPage() {
 
   return (
     <AuthenticatedScreen logoSource={logoSource}>
+      <View
+        style={{
+          borderRadius: theme.radius.lg,
+          overflow: "hidden",
+          marginBottom: theme.spacing(6),
+          shadowColor: "#FFFFFF",
+          shadowOffset: { width: 0, height: 0 },
+          shadowOpacity: 0.18,
+          shadowRadius: 20,
+        }}
+      >
+        {/* Current sermon series banner — swap the image or hide this
+            block once there's an admin screen to manage it; hardcoded
+            for now, same as the rest of the pre-CRUD content. */}
+        {/* eslint-disable-next-line jsx-a11y/alt-text -- accessibilityLabel
+            below maps to alt at runtime; see components/QrCode.tsx */}
+        <Image
+          source={{ uri: "/series-banner.jpg" }}
+          accessibilityLabel="Current sermon series: The Providence of God"
+          resizeMode="cover"
+          style={{ width: "100%", aspectRatio: 16 / 9 }}
+        />
+      </View>
+
       <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: theme.spacing(2) }}>
         Welcome, {me.person.first_name}
       </Text>
