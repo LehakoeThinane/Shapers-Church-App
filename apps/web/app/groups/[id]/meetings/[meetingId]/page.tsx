@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Switch, View } from "react-native";
-import { Button, GlassCard, LoadingScreen, Screen, Text, TextField, theme } from "@shapers/ui";
+import { Button, GlassCard, LoadingScreen, Text, TextField, theme } from "@shapers/ui";
 import {
   getCurrentUser,
   getGroupMembers,
@@ -16,6 +16,7 @@ import {
 import type { GroupMemberWithPerson, GroupReport } from "@shapers/types";
 import { getSupabaseClient } from "@/lib/supabase";
 import { logoSource } from "@/lib/logo";
+import { AuthenticatedScreen } from "@/components/AuthenticatedScreen";
 
 export default function MeetingPage() {
   const params = useParams<{ id: string; meetingId: string }>();
@@ -95,22 +96,22 @@ export default function MeetingPage() {
 
   if (error) {
     return (
-      <Screen logoSource={logoSource}>
+      <AuthenticatedScreen logoSource={logoSource}>
         <Text style={{ color: theme.color.danger }}>{error}</Text>
-      </Screen>
+      </AuthenticatedScreen>
     );
   }
 
   if (!members) return <LoadingScreen logoSource={logoSource} />;
 
   return (
-    <Screen logoSource={logoSource}>
+    <AuthenticatedScreen logoSource={logoSource}>
       <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: theme.spacing(6) }}>
         Meeting
       </Text>
 
       <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>Attendance</Text>
-      <View style={{ marginBottom: theme.spacing(4) }}>
+      <GlassCard style={{ marginBottom: theme.spacing(4) }}>
         {members.map(({ member, person }) => (
           <View
             key={member.id}
@@ -132,10 +133,12 @@ export default function MeetingPage() {
             />
           </View>
         ))}
-      </View>
-      <Button title="Save attendance" onPress={onSaveAttendance} loading={savingAttendance} />
+        <View style={{ marginTop: theme.spacing(3) }}>
+          <Button title="Save attendance" onPress={onSaveAttendance} loading={savingAttendance} />
+        </View>
+      </GlassCard>
 
-      <View style={{ marginTop: theme.spacing(8) }}>
+      <View style={{ marginBottom: theme.spacing(4) }}>
         <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>Report</Text>
         {report ? (
           <GlassCard>
@@ -145,7 +148,7 @@ export default function MeetingPage() {
             <Text>Exception: {report.is_exception ? "Yes" : "No"}</Text>
           </GlassCard>
         ) : (
-          <View>
+          <GlassCard>
             <TextField
               label="Attendance count"
               value={attendanceCount}
@@ -171,13 +174,11 @@ export default function MeetingPage() {
               <Switch value={isException} onValueChange={setIsException} />
             </View>
             <Button title="Submit report" onPress={onSubmitReport} loading={submittingReport} />
-          </View>
+          </GlassCard>
         )}
       </View>
 
-      <View style={{ marginTop: theme.spacing(6) }}>
-        <Link href={`/groups/${groupId}`}>Back to group</Link>
-      </View>
-    </Screen>
+      <Link href={`/groups/${groupId}`}>Back to group</Link>
+    </AuthenticatedScreen>
   );
 }

@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { View } from "react-native";
-import { LoadingScreen, Screen, Text, theme } from "@shapers/ui";
+import { GlassCard, LoadingScreen, Text, theme } from "@shapers/ui";
 import { getCourses } from "@shapers/api-client";
 import type { Course } from "@shapers/types";
 import { getSupabaseClient } from "@/lib/supabase";
 import { logoSource } from "@/lib/logo";
+import { AuthenticatedScreen } from "@/components/AuthenticatedScreen";
 
 export default function CoursesPage() {
   const [courses, setCourses] = useState<Course[] | null>(null);
@@ -29,9 +30,9 @@ export default function CoursesPage() {
 
   if (error) {
     return (
-      <Screen logoSource={logoSource}>
+      <AuthenticatedScreen logoSource={logoSource}>
         <Text style={{ color: theme.color.danger }}>{error}</Text>
-      </Screen>
+      </AuthenticatedScreen>
     );
   }
 
@@ -41,7 +42,7 @@ export default function CoursesPage() {
   const programCourses = courses.filter((c) => c.course_type === "program");
 
   return (
-    <Screen logoSource={logoSource}>
+    <AuthenticatedScreen logoSource={logoSource}>
       <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: theme.spacing(6) }}>Courses</Text>
 
       {courses.length === 0 ? (
@@ -49,39 +50,41 @@ export default function CoursesPage() {
       ) : (
         <>
           {programCourses.length > 0 ? (
-            <View style={{ marginBottom: theme.spacing(6) }}>
+            <View style={{ marginBottom: theme.spacing(4) }}>
               <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>Programs</Text>
-              {programCourses.map((c) => (
-                <Link
-                  key={c.id}
-                  href={`/courses/${c.id}`}
-                  style={{ display: "block", paddingTop: 6, paddingBottom: 6 }}
-                >
-                  {c.title}
-                  {c.unlocks_milestone ? ` (unlocks ${c.unlocks_milestone})` : ""}
-                </Link>
-              ))}
+              <GlassCard>
+                {programCourses.map((c) => (
+                  <Link
+                    key={c.id}
+                    href={`/courses/${c.id}`}
+                    style={{ display: "block", paddingTop: 6, paddingBottom: 6 }}
+                  >
+                    {c.title}
+                    {c.unlocks_milestone ? ` (unlocks ${c.unlocks_milestone})` : ""}
+                  </Link>
+                ))}
+              </GlassCard>
             </View>
           ) : null}
 
           {seriesCourses.length > 0 ? (
-            <View style={{ marginBottom: theme.spacing(6) }}>
+            <View style={{ marginBottom: theme.spacing(4) }}>
               <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>Sermon series</Text>
-              {seriesCourses.map((c) => (
-                <Link
-                  key={c.id}
-                  href={`/courses/${c.id}`}
-                  style={{ display: "block", paddingTop: 6, paddingBottom: 6 }}
-                >
-                  {c.title}
-                </Link>
-              ))}
+              <GlassCard>
+                {seriesCourses.map((c) => (
+                  <Link
+                    key={c.id}
+                    href={`/courses/${c.id}`}
+                    style={{ display: "block", paddingTop: 6, paddingBottom: 6 }}
+                  >
+                    {c.title}
+                  </Link>
+                ))}
+              </GlassCard>
             </View>
           ) : null}
         </>
       )}
-
-      <Link href="/dashboard">Back to dashboard</Link>
-    </Screen>
+    </AuthenticatedScreen>
   );
 }

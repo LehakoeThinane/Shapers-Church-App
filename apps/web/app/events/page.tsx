@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { View } from "react-native";
-import { Button, LoadingScreen, Screen, Text, theme } from "@shapers/ui";
+import { Button, GlassCard, LoadingScreen, Text, theme } from "@shapers/ui";
 import { getCurrentUser, getEvents, rsvpToEvent } from "@shapers/api-client";
 import type { CurrentUser, EventWithRsvp } from "@shapers/types";
 import { getSupabaseClient } from "@/lib/supabase";
 import { logoSource } from "@/lib/logo";
+import { AuthenticatedScreen } from "@/components/AuthenticatedScreen";
 
 const STATUSES: { key: "going" | "maybe" | "declined"; label: string }[] = [
   { key: "going", label: "Going" },
@@ -48,16 +48,16 @@ export default function EventsPage() {
 
   if (error) {
     return (
-      <Screen logoSource={logoSource}>
+      <AuthenticatedScreen logoSource={logoSource}>
         <Text style={{ color: theme.color.danger }}>{error}</Text>
-      </Screen>
+      </AuthenticatedScreen>
     );
   }
 
   if (!events || !me) return <LoadingScreen logoSource={logoSource} />;
 
   return (
-    <Screen logoSource={logoSource}>
+    <AuthenticatedScreen logoSource={logoSource}>
       <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: theme.spacing(6) }}>
         Upcoming events
       </Text>
@@ -65,14 +65,7 @@ export default function EventsPage() {
         <Text style={{ color: theme.color.textMuted }}>No upcoming events.</Text>
       ) : (
         events.map(({ event, myRsvp }) => (
-          <View
-            key={event.id}
-            style={{
-              paddingVertical: theme.spacing(4),
-              borderBottomWidth: 1,
-              borderBottomColor: theme.color.border,
-            }}
-          >
+          <GlassCard key={event.id} style={{ marginBottom: theme.spacing(3) }}>
             <Text style={{ fontWeight: "600" }}>{event.title}</Text>
             <Text style={{ color: theme.color.textMuted, marginBottom: theme.spacing(2) }}>
               {new Date(event.starts_at).toLocaleString()}
@@ -90,12 +83,9 @@ export default function EventsPage() {
                 />
               ))}
             </View>
-          </View>
+          </GlassCard>
         ))
       )}
-      <View style={{ marginTop: theme.spacing(6) }}>
-        <Link href="/dashboard">Back to dashboard</Link>
-      </View>
-    </Screen>
+    </AuthenticatedScreen>
   );
 }

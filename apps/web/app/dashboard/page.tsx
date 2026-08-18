@@ -4,11 +4,12 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { View } from "react-native";
-import { Button, LoadingScreen, Screen, Text, theme } from "@shapers/ui";
-import { getCurrentUser, getMilestones, signOut } from "@shapers/api-client";
+import { GlassCard, LoadingScreen, Text, theme } from "@shapers/ui";
+import { getCurrentUser, getMilestones } from "@shapers/api-client";
 import type { CurrentUser, PersonMilestone } from "@shapers/types";
 import { getSupabaseClient } from "@/lib/supabase";
 import { logoSource } from "@/lib/logo";
+import { AuthenticatedScreen } from "@/components/AuthenticatedScreen";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -38,11 +39,6 @@ export default function DashboardPage() {
     };
   }, [router]);
 
-  async function onSignOut() {
-    await signOut(getSupabaseClient());
-    router.replace("/login");
-  }
-
   if (loading || !me) return <LoadingScreen logoSource={logoSource} />;
 
   const roles = new Set(me.roleAssignments.map((ra) => ra.role));
@@ -51,14 +47,15 @@ export default function DashboardPage() {
   const isMember = roles.has("member");
 
   return (
-    <Screen logoSource={logoSource}>
+    <AuthenticatedScreen logoSource={logoSource}>
       <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: theme.spacing(2) }}>
         Welcome, {me.person.first_name}
       </Text>
       <Text style={{ color: theme.color.textMuted, marginBottom: theme.spacing(6) }}>
         {me.household ? me.household.name ?? "Household" : "No household on file yet"}
       </Text>
-      <View style={{ marginBottom: theme.spacing(6) }}>
+
+      <GlassCard style={{ marginBottom: theme.spacing(4) }}>
         <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>Roles</Text>
         {me.roleAssignments.length === 0 ? (
           <Text style={{ color: theme.color.textMuted }}>No roles assigned</Text>
@@ -70,51 +67,38 @@ export default function DashboardPage() {
             </Text>
           ))
         )}
-      </View>
+      </GlassCard>
 
       {milestones.length > 0 ? (
-        <View style={{ marginBottom: theme.spacing(6) }}>
+        <GlassCard style={{ marginBottom: theme.spacing(4) }}>
           <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>Milestones</Text>
           {milestones.map((m) => (
             <Text key={m.id}>
               {m.milestone_type} — {m.achieved_at}
             </Text>
           ))}
-        </View>
+        </GlassCard>
       ) : null}
 
-      <View style={{ marginBottom: theme.spacing(1) }}>
-        <Link href="/groups">Groups</Link>
-      </View>
-      <View style={{ marginBottom: theme.spacing(1) }}>
-        <Link href="/announcements">Announcements</Link>
-      </View>
-      <View style={{ marginBottom: theme.spacing(1) }}>
-        <Link href="/events">Events</Link>
-      </View>
-      {isMember ? (
-        <>
-          <View style={{ marginBottom: theme.spacing(1) }}>
-            <Link href="/courses">Courses</Link>
-          </View>
-          <View style={{ marginBottom: theme.spacing(6) }}>
-            <Link href="/prayer">Prayer wall</Link>
-          </View>
-        </>
-      ) : (
-        <View style={{ marginBottom: theme.spacing(6) }}>
+      {!isMember ? (
+        <GlassCard style={{ marginBottom: theme.spacing(4) }}>
+          <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>Become a member</Text>
+          <Text style={{ color: theme.color.textMuted, marginBottom: theme.spacing(2) }}>
+            Unlocks courses and the prayer wall.
+          </Text>
           <Link href="/become-member">Become a member</Link>
-        </View>
-      )}
+        </GlassCard>
+      ) : null}
 
       {roles.has("admin") ? (
-        <View style={{ marginBottom: theme.spacing(6) }}>
+        <GlassCard style={{ marginBottom: theme.spacing(4) }}>
+          <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>Admin</Text>
           <Link href="/admin/invite">Invite people</Link>
-        </View>
+        </GlassCard>
       ) : null}
 
       {isGuardian || canCheckIn ? (
-        <View style={{ marginBottom: theme.spacing(6) }}>
+        <GlassCard style={{ marginBottom: theme.spacing(4) }}>
           <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>Check-in</Text>
           {isGuardian ? (
             <Link href="/checkin" style={{ display: "block", marginBottom: theme.spacing(1) }}>
@@ -131,10 +115,8 @@ export default function DashboardPage() {
               </Link>
             </>
           ) : null}
-        </View>
+        </GlassCard>
       ) : null}
-
-      <Button title="Sign out" variant="secondary" onPress={onSignOut} />
-    </Screen>
+    </AuthenticatedScreen>
   );
 }

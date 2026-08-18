@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { View } from "react-native";
-import { Button, GlassCard, LoadingScreen, Screen, Text, theme } from "@shapers/ui";
+import { Button, GlassCard, LoadingScreen, Text, theme } from "@shapers/ui";
 import {
   completeLesson,
   getCourseWithLessons,
@@ -15,6 +15,7 @@ import {
 import type { CourseWithLessons, Quiz, QuizQuestionForTaking } from "@shapers/types";
 import { getSupabaseClient } from "@/lib/supabase";
 import { logoSource } from "@/lib/logo";
+import { AuthenticatedScreen } from "@/components/AuthenticatedScreen";
 
 export default function LessonPage() {
   const params = useParams<{ id: string; lessonId: string }>();
@@ -90,16 +91,16 @@ export default function LessonPage() {
 
   if (error) {
     return (
-      <Screen logoSource={logoSource}>
+      <AuthenticatedScreen logoSource={logoSource}>
         <Text style={{ color: theme.color.danger }}>{error}</Text>
-      </Screen>
+      </AuthenticatedScreen>
     );
   }
 
   if (!data || !lesson) return <LoadingScreen logoSource={logoSource} />;
 
   return (
-    <Screen logoSource={logoSource}>
+    <AuthenticatedScreen logoSource={logoSource}>
       <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: theme.spacing(6) }}>
         {lesson.title}
       </Text>
@@ -182,6 +183,6 @@ export default function LessonPage() {
       <View style={{ marginTop: theme.spacing(6) }}>
         <Link href={`/courses/${courseId}`}>Back to course</Link>
       </View>
-    </Screen>
+    </AuthenticatedScreen>
   );
 }

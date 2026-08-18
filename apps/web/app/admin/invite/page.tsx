@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { View } from "react-native";
-import { Button, GlassCard, LoadingScreen, Screen, Text, theme } from "@shapers/ui";
+import { Button, GlassCard, LoadingScreen, Text, theme } from "@shapers/ui";
+import { AuthenticatedScreen } from "@/components/AuthenticatedScreen";
 import { getChurch, getChurchInviteCode, getCurrentUser } from "@shapers/api-client";
 import type { Church, CurrentUser } from "@shapers/types";
 import { getSupabaseClient } from "@/lib/supabase";
@@ -43,9 +43,9 @@ export default function AdminInvitePage() {
 
   if (error) {
     return (
-      <Screen logoSource={logoSource}>
+      <AuthenticatedScreen logoSource={logoSource}>
         <Text style={{ color: theme.color.danger }}>{error}</Text>
-      </Screen>
+      </AuthenticatedScreen>
     );
   }
 
@@ -54,12 +54,11 @@ export default function AdminInvitePage() {
   const isAdmin = me.roleAssignments.some((ra) => ra.role === "admin");
   if (!isAdmin) {
     return (
-      <Screen logoSource={logoSource}>
+      <AuthenticatedScreen logoSource={logoSource}>
         <Text style={{ color: theme.color.danger, marginBottom: theme.spacing(4) }}>
           Admins only.
         </Text>
-        <Link href="/dashboard">Back to dashboard</Link>
-      </Screen>
+      </AuthenticatedScreen>
     );
   }
 
@@ -75,7 +74,7 @@ export default function AdminInvitePage() {
   }
 
   return (
-    <Screen logoSource={logoSource}>
+    <AuthenticatedScreen logoSource={logoSource}>
       <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: theme.spacing(2) }}>
         Invite a member to {church.name}
       </Text>
@@ -110,8 +109,6 @@ export default function AdminInvitePage() {
           onPress={() => copy(inviteCode, "code")}
         />
       </View>
-
-      <Link href="/dashboard">Back to dashboard</Link>
-    </Screen>
+    </AuthenticatedScreen>
   );
 }

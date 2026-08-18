@@ -4,11 +4,12 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { View } from "react-native";
-import { LoadingScreen, Screen, Text, theme } from "@shapers/ui";
+import { GlassCard, LoadingScreen, Text, theme } from "@shapers/ui";
 import { getCourseWithLessons } from "@shapers/api-client";
 import type { CourseWithLessons } from "@shapers/types";
 import { getSupabaseClient } from "@/lib/supabase";
 import { logoSource } from "@/lib/logo";
+import { AuthenticatedScreen } from "@/components/AuthenticatedScreen";
 
 export default function CourseDetailPage() {
   const params = useParams<{ id: string }>();
@@ -33,9 +34,9 @@ export default function CourseDetailPage() {
 
   if (error) {
     return (
-      <Screen logoSource={logoSource}>
+      <AuthenticatedScreen logoSource={logoSource}>
         <Text style={{ color: theme.color.danger }}>{error}</Text>
-      </Screen>
+      </AuthenticatedScreen>
     );
   }
 
@@ -45,7 +46,7 @@ export default function CourseDetailPage() {
   const completedCount = lessons.filter((l) => l.progress?.completed_at).length;
 
   return (
-    <Screen logoSource={logoSource}>
+    <AuthenticatedScreen logoSource={logoSource}>
       <Text style={{ fontSize: 24, fontWeight: "700" }}>{course.title}</Text>
       <Text style={{ color: theme.color.textMuted, marginBottom: theme.spacing(6) }}>
         {completedCount}/{lessons.length} lessons complete
@@ -55,21 +56,23 @@ export default function CourseDetailPage() {
       {lessons.length === 0 ? (
         <Text style={{ color: theme.color.textMuted }}>No lessons yet.</Text>
       ) : (
-        lessons.map((lesson) => (
-          <Link
-            key={lesson.id}
-            href={`/courses/${course.id}/lessons/${lesson.id}`}
-            style={{ display: "block", paddingTop: 8, paddingBottom: 8 }}
-          >
-            {lesson.progress?.completed_at ? "✓ " : ""}
-            {lesson.position}. {lesson.title}
-          </Link>
-        ))
+        <GlassCard style={{ marginBottom: theme.spacing(4) }}>
+          {lessons.map((lesson) => (
+            <Link
+              key={lesson.id}
+              href={`/courses/${course.id}/lessons/${lesson.id}`}
+              style={{ display: "block", paddingTop: 8, paddingBottom: 8 }}
+            >
+              {lesson.progress?.completed_at ? "✓ " : ""}
+              {lesson.position}. {lesson.title}
+            </Link>
+          ))}
+        </GlassCard>
       )}
 
-      <View style={{ marginTop: theme.spacing(6) }}>
+      <View>
         <Link href="/courses">Back to courses</Link>
       </View>
-    </Screen>
+    </AuthenticatedScreen>
   );
 }

@@ -3,11 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import { View } from "react-native";
-import { Button, GlassCard, Screen, Text, TextField, theme } from "@shapers/ui";
+import { Button, GlassCard, Text, TextField, theme } from "@shapers/ui";
 import { scanCheckin } from "@shapers/api-client";
 import type { CheckinScanResult } from "@shapers/types";
 import { getSupabaseClient } from "@/lib/supabase";
 import { logoSource } from "@/lib/logo";
+import { AuthenticatedScreen } from "@/components/AuthenticatedScreen";
 
 export default function ScanCheckinPage() {
   const [token, setToken] = useState("");
@@ -31,7 +32,7 @@ export default function ScanCheckinPage() {
   }
 
   return (
-    <Screen logoSource={logoSource}>
+    <AuthenticatedScreen logoSource={logoSource}>
       <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: theme.spacing(2) }}>
         Check in
       </Text>
@@ -67,6 +68,6 @@ export default function ScanCheckinPage() {
       <View style={{ marginTop: theme.spacing(6) }}>
         <Link href="/checkin/pickup">Go to pickup</Link>
       </View>
-    </Screen>
+    </AuthenticatedScreen>
   );
 }

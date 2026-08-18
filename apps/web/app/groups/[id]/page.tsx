@@ -4,11 +4,12 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { View } from "react-native";
-import { Button, LoadingScreen, Screen, Text, TextField, theme } from "@shapers/ui";
+import { Button, GlassCard, LoadingScreen, Text, TextField, theme } from "@shapers/ui";
 import { createMeeting, getCurrentUser, getGroup, getGroupMeetings, getGroupMembers } from "@shapers/api-client";
 import type { GroupMeeting, GroupMemberWithPerson, MinistryGroup } from "@shapers/types";
 import { getSupabaseClient } from "@/lib/supabase";
 import { logoSource } from "@/lib/logo";
+import { AuthenticatedScreen } from "@/components/AuthenticatedScreen";
 
 export default function GroupDetailPage() {
   const params = useParams<{ id: string }>();
@@ -61,16 +62,16 @@ export default function GroupDetailPage() {
 
   if (error) {
     return (
-      <Screen logoSource={logoSource}>
+      <AuthenticatedScreen logoSource={logoSource}>
         <Text style={{ color: theme.color.danger }}>{error}</Text>
-      </Screen>
+      </AuthenticatedScreen>
     );
   }
 
   if (!group || !members || !meetings) return <LoadingScreen logoSource={logoSource} />;
 
   return (
-    <Screen logoSource={logoSource}>
+    <AuthenticatedScreen logoSource={logoSource}>
       <Text style={{ fontSize: 24, fontWeight: "700" }}>{group.name}</Text>
       <Text style={{ color: theme.color.textMuted, marginBottom: theme.spacing(6) }}>
         {group.group_type}
@@ -85,7 +86,7 @@ export default function GroupDetailPage() {
       <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>
         Members ({members.length})
       </Text>
-      <View style={{ marginBottom: theme.spacing(6) }}>
+      <GlassCard style={{ marginBottom: theme.spacing(4) }}>
         {members.length === 0 ? (
           <Text style={{ color: theme.color.textMuted }}>No members yet.</Text>
         ) : (
@@ -96,14 +97,12 @@ export default function GroupDetailPage() {
             </Text>
           ))
         )}
-      </View>
+      </GlassCard>
 
       <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>Meetings</Text>
-      <View style={{ marginBottom: theme.spacing(4) }}>
+      <GlassCard style={{ marginBottom: theme.spacing(4) }}>
         {meetings.length === 0 ? (
-          <Text style={{ color: theme.color.textMuted, marginBottom: theme.spacing(2) }}>
-            No meetings logged yet.
-          </Text>
+          <Text style={{ color: theme.color.textMuted }}>No meetings logged yet.</Text>
         ) : (
           meetings.map((m) => (
             <Link
@@ -116,26 +115,26 @@ export default function GroupDetailPage() {
             </Link>
           ))
         )}
-      </View>
+      </GlassCard>
 
-      <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>Log a meeting</Text>
-      <TextField
-        label="Date (YYYY-MM-DD)"
-        value={meetingDate}
-        onChangeText={setMeetingDate}
-        placeholder="2026-08-17"
-      />
-      <TextField label="Location (optional)" value={location} onChangeText={setLocation} />
-      <Button
-        title="Log meeting"
-        onPress={onLogMeeting}
-        loading={logging}
-        disabled={!meetingDate.trim()}
-      />
+      <GlassCard style={{ marginBottom: theme.spacing(4) }}>
+        <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>Log a meeting</Text>
+        <TextField
+          label="Date (YYYY-MM-DD)"
+          value={meetingDate}
+          onChangeText={setMeetingDate}
+          placeholder="2026-08-17"
+        />
+        <TextField label="Location (optional)" value={location} onChangeText={setLocation} />
+        <Button
+          title="Log meeting"
+          onPress={onLogMeeting}
+          loading={logging}
+          disabled={!meetingDate.trim()}
+        />
+      </GlassCard>
 
-      <View style={{ marginTop: theme.spacing(6) }}>
-        <Link href="/groups">Back to groups</Link>
-      </View>
-    </Screen>
+      <Link href="/groups">Back to groups</Link>
+    </AuthenticatedScreen>
   );
 }

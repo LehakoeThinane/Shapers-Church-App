@@ -4,11 +4,12 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { View } from "react-native";
-import { LoadingScreen, Screen, Text, theme } from "@shapers/ui";
+import { GlassCard, LoadingScreen, Text, theme } from "@shapers/ui";
 import { getCircuitReports } from "@shapers/api-client";
 import type { GroupMeeting, GroupReport, MinistryGroup } from "@shapers/types";
 import { getSupabaseClient } from "@/lib/supabase";
 import { logoSource } from "@/lib/logo";
+import { AuthenticatedScreen } from "@/components/AuthenticatedScreen";
 
 export default function CircuitReportsPage() {
   const params = useParams<{ id: string }>();
@@ -35,16 +36,16 @@ export default function CircuitReportsPage() {
 
   if (error) {
     return (
-      <Screen logoSource={logoSource}>
+      <AuthenticatedScreen logoSource={logoSource}>
         <Text style={{ color: theme.color.danger }}>{error}</Text>
-      </Screen>
+      </AuthenticatedScreen>
     );
   }
 
   if (!rows) return <LoadingScreen logoSource={logoSource} />;
 
   return (
-    <Screen logoSource={logoSource}>
+    <AuthenticatedScreen logoSource={logoSource}>
       <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: theme.spacing(6) }}>
         Circuit reports
       </Text>
@@ -52,14 +53,7 @@ export default function CircuitReportsPage() {
         <Text style={{ color: theme.color.textMuted }}>No reports submitted yet.</Text>
       ) : (
         rows.map(({ report, meeting, group }) => (
-          <View
-            key={report.id}
-            style={{
-              paddingVertical: theme.spacing(3),
-              borderBottomWidth: 1,
-              borderBottomColor: theme.color.border,
-            }}
-          >
+          <GlassCard key={report.id} style={{ marginBottom: theme.spacing(3) }}>
             <Text style={{ fontWeight: "600" }}>
               {group.name} — {meeting.meeting_date}
               {report.is_exception ? " ⚠" : ""}
@@ -68,12 +62,12 @@ export default function CircuitReportsPage() {
               Attendance: {report.attendance_count ?? "—"} · Offering: {report.offering_amount ?? "—"}
             </Text>
             {report.testimonies ? <Text>{report.testimonies}</Text> : null}
-          </View>
+          </GlassCard>
         ))
       )}
-      <View style={{ marginTop: theme.spacing(6) }}>
+      <View style={{ marginTop: theme.spacing(2) }}>
         <Link href={`/groups/${groupId}`}>Back to group</Link>
       </View>
-    </Screen>
+    </AuthenticatedScreen>
   );
 }

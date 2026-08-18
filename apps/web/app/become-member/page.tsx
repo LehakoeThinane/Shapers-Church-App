@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Screen, Text, TextField, theme } from "@shapers/ui";
+import { Button, Text, TextField, theme } from "@shapers/ui";
 import { becomeMember } from "@shapers/api-client";
 import { getSupabaseClient } from "@/lib/supabase";
 import { logoSource } from "@/lib/logo";
+import { AuthenticatedScreen } from "@/components/AuthenticatedScreen";
 
 // Manual entry point for an already-signed-up (Tier 1) person to become
 // a full member, as an alternative to clicking a /join/[code] link.
@@ -29,7 +30,7 @@ export default function BecomeMemberPage() {
   }
 
   return (
-    <Screen logoSource={logoSource}>
+    <AuthenticatedScreen logoSource={logoSource}>
       <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: theme.spacing(2) }}>
         Become a member
       </Text>
@@ -46,6 +47,6 @@ export default function BecomeMemberPage() {
         <Text style={{ color: theme.color.danger, marginBottom: theme.spacing(4) }}>{error}</Text>
       ) : null}
       <Button title="Continue" onPress={onSubmit} loading={loading} disabled={!inviteCode.trim()} />
-    </Screen>
+    </AuthenticatedScreen>
   );
 }

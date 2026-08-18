@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { View } from "react-native";
-import { LoadingScreen, Screen, Text, theme } from "@shapers/ui";
+import { GlassCard, LoadingScreen, Text, theme } from "@shapers/ui";
 import { getGroups } from "@shapers/api-client";
 import type { MinistryGroup } from "@shapers/types";
 import { getSupabaseClient } from "@/lib/supabase";
 import { logoSource } from "@/lib/logo";
+import { AuthenticatedScreen } from "@/components/AuthenticatedScreen";
 
 const TYPE_LABELS: Record<MinistryGroup["group_type"], string> = {
   circuit: "Circuits",
@@ -36,9 +37,9 @@ export default function GroupsPage() {
 
   if (error) {
     return (
-      <Screen logoSource={logoSource}>
+      <AuthenticatedScreen logoSource={logoSource}>
         <Text style={{ color: theme.color.danger }}>{error}</Text>
-      </Screen>
+      </AuthenticatedScreen>
     );
   }
 
@@ -50,7 +51,7 @@ export default function GroupsPage() {
   }, {});
 
   return (
-    <Screen logoSource={logoSource}>
+    <AuthenticatedScreen logoSource={logoSource}>
       <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: theme.spacing(6) }}>Groups</Text>
       {groups.length === 0 ? (
         <Text style={{ color: theme.color.textMuted }}>
@@ -60,24 +61,25 @@ export default function GroupsPage() {
       ) : (
         (Object.keys(TYPE_LABELS) as MinistryGroup["group_type"][]).map((type) =>
           byType[type]?.length ? (
-            <View key={type} style={{ marginBottom: theme.spacing(6) }}>
+            <View key={type} style={{ marginBottom: theme.spacing(4) }}>
               <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>
                 {TYPE_LABELS[type]}
               </Text>
-              {byType[type].map((g) => (
-                <Link
-                  key={g.id}
-                  href={`/groups/${g.id}`}
-                  style={{ display: "block", paddingTop: 6, paddingBottom: 6 }}
-                >
-                  {g.name}
-                </Link>
-              ))}
+              <GlassCard>
+                {byType[type].map((g) => (
+                  <Link
+                    key={g.id}
+                    href={`/groups/${g.id}`}
+                    style={{ display: "block", paddingTop: 6, paddingBottom: 6 }}
+                  >
+                    {g.name}
+                  </Link>
+                ))}
+              </GlassCard>
             </View>
           ) : null
         )
       )}
-      <Link href="/dashboard">Back to dashboard</Link>
-    </Screen>
+    </AuthenticatedScreen>
   );
 }

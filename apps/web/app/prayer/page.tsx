@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { View } from "react-native";
-import { Button, LoadingScreen, Screen, Text, TextField, theme } from "@shapers/ui";
+import { Button, GlassCard, LoadingScreen, Text, TextField, theme } from "@shapers/ui";
 import { approvePrayerRequest, getCurrentUser, getPrayerRequests, submitPrayerRequest } from "@shapers/api-client";
 import type { CurrentUser, PrayerRequestForDisplay } from "@shapers/types";
 import { getSupabaseClient } from "@/lib/supabase";
 import { logoSource } from "@/lib/logo";
+import { AuthenticatedScreen } from "@/components/AuthenticatedScreen";
 
 export default function PrayerPage() {
   const [me, setMe] = useState<CurrentUser | null>(null);
@@ -60,9 +60,9 @@ export default function PrayerPage() {
 
   if (error) {
     return (
-      <Screen logoSource={logoSource}>
+      <AuthenticatedScreen logoSource={logoSource}>
         <Text style={{ color: theme.color.danger }}>{error}</Text>
-      </Screen>
+      </AuthenticatedScreen>
     );
   }
 
@@ -76,58 +76,46 @@ export default function PrayerPage() {
   const approved = requests.filter((r) => r.request.is_approved);
 
   return (
-    <Screen logoSource={logoSource}>
+    <AuthenticatedScreen logoSource={logoSource}>
       <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: theme.spacing(6) }}>
         Prayer wall
       </Text>
 
-      <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>Submit a request</Text>
-      <TextField label="Your request" value={requestText} onChangeText={setRequestText} />
-      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: theme.spacing(4) }}>
-        <Text
-          onPress={() => setIsAnonymous((v) => !v)}
-          style={{ color: isAnonymous ? theme.color.primary : theme.color.textMuted }}
-        >
-          {isAnonymous ? "☑" : "☐"} Submit anonymously
-        </Text>
-      </View>
-      <Button title="Submit" onPress={onSubmit} loading={submitting} disabled={!requestText.trim()} />
+      <GlassCard style={{ marginBottom: theme.spacing(6) }}>
+        <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>Submit a request</Text>
+        <TextField label="Your request" value={requestText} onChangeText={setRequestText} />
+        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: theme.spacing(4) }}>
+          <Text
+            onPress={() => setIsAnonymous((v) => !v)}
+            style={{ color: isAnonymous ? theme.color.primary : theme.color.textMuted }}
+          >
+            {isAnonymous ? "☑" : "☐"} Submit anonymously
+          </Text>
+        </View>
+        <Button title="Submit" onPress={onSubmit} loading={submitting} disabled={!requestText.trim()} />
+      </GlassCard>
 
       {myPending.length > 0 ? (
-        <View style={{ marginTop: theme.spacing(8) }}>
+        <View style={{ marginBottom: theme.spacing(6) }}>
           <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>
             Your requests awaiting approval
           </Text>
           {myPending.map(({ request }) => (
-            <View
-              key={request.id}
-              style={{
-                paddingVertical: theme.spacing(3),
-                borderBottomWidth: 1,
-                borderBottomColor: theme.color.border,
-              }}
-            >
+            <GlassCard key={request.id} style={{ marginBottom: theme.spacing(2) }}>
               <Text>{request.request_text}</Text>
               <Text style={{ color: theme.color.textMuted }}>Awaiting approval</Text>
-            </View>
+            </GlassCard>
           ))}
         </View>
       ) : null}
 
       {isAdmin && othersPending.length > 0 ? (
-        <View style={{ marginTop: theme.spacing(8) }}>
+        <View style={{ marginBottom: theme.spacing(6) }}>
           <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>
             Pending approval ({othersPending.length})
           </Text>
           {othersPending.map(({ request, submitterName }) => (
-            <View
-              key={request.id}
-              style={{
-                paddingVertical: theme.spacing(3),
-                borderBottomWidth: 1,
-                borderBottomColor: theme.color.border,
-              }}
-            >
+            <GlassCard key={request.id} style={{ marginBottom: theme.spacing(2) }}>
               <Text>{request.request_text}</Text>
               <Text style={{ color: theme.color.textMuted, marginBottom: theme.spacing(2) }}>
                 {request.is_anonymous ? "Anonymous" : submitterName ?? "Unknown"}
@@ -138,37 +126,26 @@ export default function PrayerPage() {
                 loading={approvingId === request.id}
                 onPress={() => onApprove(request.id)}
               />
-            </View>
+            </GlassCard>
           ))}
         </View>
       ) : null}
 
-      <View style={{ marginTop: theme.spacing(8) }}>
+      <View>
         <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>Requests</Text>
         {approved.length === 0 ? (
           <Text style={{ color: theme.color.textMuted }}>No approved requests yet.</Text>
         ) : (
           approved.map(({ request, submitterName }) => (
-            <View
-              key={request.id}
-              style={{
-                paddingVertical: theme.spacing(3),
-                borderBottomWidth: 1,
-                borderBottomColor: theme.color.border,
-              }}
-            >
+            <GlassCard key={request.id} style={{ marginBottom: theme.spacing(2) }}>
               <Text>{request.request_text}</Text>
               <Text style={{ color: theme.color.textMuted }}>
                 {request.is_anonymous ? "Anonymous" : submitterName ?? "A church member"}
               </Text>
-            </View>
+            </GlassCard>
           ))
         )}
       </View>
-
-      <View style={{ marginTop: theme.spacing(6) }}>
-        <Link href="/dashboard">Back to dashboard</Link>
-      </View>
-    </Screen>
+    </AuthenticatedScreen>
   );
 }

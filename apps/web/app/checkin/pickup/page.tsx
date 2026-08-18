@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { View } from "react-native";
-import { Button, LoadingScreen, Screen, Text, TextField, theme } from "@shapers/ui";
+import { Button, GlassCard, LoadingScreen, Text, TextField, theme } from "@shapers/ui";
 import { confirmPickup, getOpenCheckins } from "@shapers/api-client";
 import type { OpenCheckin } from "@shapers/types";
 import { getSupabaseClient } from "@/lib/supabase";
 import { logoSource } from "@/lib/logo";
+import { AuthenticatedScreen } from "@/components/AuthenticatedScreen";
 
 export default function PickupPage() {
   const [open, setOpen] = useState<OpenCheckin[] | null>(null);
@@ -43,7 +44,7 @@ export default function PickupPage() {
   if (!open) return <LoadingScreen logoSource={logoSource} />;
 
   return (
-    <Screen logoSource={logoSource}>
+    <AuthenticatedScreen logoSource={logoSource}>
       <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: theme.spacing(2) }}>
         Pickup
       </Text>
@@ -57,14 +58,7 @@ export default function PickupPage() {
         <Text style={{ color: theme.color.textMuted }}>No one is currently checked in.</Text>
       ) : (
         open.map(({ checkin, child }) => (
-          <View
-            key={checkin.id}
-            style={{
-              paddingVertical: theme.spacing(4),
-              borderBottomWidth: 1,
-              borderBottomColor: theme.color.border,
-            }}
-          >
+          <GlassCard key={checkin.id} style={{ marginBottom: theme.spacing(3) }}>
             <Text style={{ fontSize: 16, fontWeight: "600" }}>
               {child.first_name} {child.last_name}
             </Text>
@@ -99,12 +93,12 @@ export default function PickupPage() {
                 }}
               />
             )}
-          </View>
+          </GlassCard>
         ))
       )}
-      <View style={{ marginTop: theme.spacing(6) }}>
+      <View style={{ marginTop: theme.spacing(2) }}>
         <Link href="/checkin/scan">Go to check-in</Link>
       </View>
-    </Screen>
+    </AuthenticatedScreen>
   );
 }

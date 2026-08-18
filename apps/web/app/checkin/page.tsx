@@ -1,14 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { View } from "react-native";
-import { LoadingScreen, Screen, Text, theme } from "@shapers/ui";
+import { GlassCard, LoadingScreen, Text, theme } from "@shapers/ui";
 import { getMyCheckinTags } from "@shapers/api-client";
 import type { MyCheckinTag } from "@shapers/types";
 import { getSupabaseClient } from "@/lib/supabase";
 import { logoSource } from "@/lib/logo";
 import { QrCode } from "@/components/QrCode";
+import { AuthenticatedScreen } from "@/components/AuthenticatedScreen";
 
 export default function CheckinTagsPage() {
   const [tags, setTags] = useState<MyCheckinTag[] | null>(null);
@@ -30,16 +29,16 @@ export default function CheckinTagsPage() {
 
   if (error) {
     return (
-      <Screen logoSource={logoSource}>
+      <AuthenticatedScreen logoSource={logoSource}>
         <Text style={{ color: theme.color.danger }}>{error}</Text>
-      </Screen>
+      </AuthenticatedScreen>
     );
   }
 
   if (!tags) return <LoadingScreen logoSource={logoSource} />;
 
   return (
-    <Screen logoSource={logoSource}>
+    <AuthenticatedScreen logoSource={logoSource}>
       <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: theme.spacing(2) }}>
         This week&apos;s check-in codes
       </Text>
@@ -53,16 +52,7 @@ export default function CheckinTagsPage() {
         </Text>
       ) : (
         tags.map(({ tag, child }) => (
-          <View
-            key={tag.id}
-            style={{
-              alignItems: "center",
-              marginBottom: theme.spacing(8),
-              paddingBottom: theme.spacing(6),
-              borderBottomWidth: 1,
-              borderBottomColor: theme.color.border,
-            }}
-          >
+          <GlassCard key={tag.id} style={{ alignItems: "center", marginBottom: theme.spacing(4) }}>
             <Text style={{ fontSize: 18, fontWeight: "600", marginBottom: theme.spacing(3) }}>
               {child.first_name} {child.last_name}
             </Text>
@@ -70,10 +60,9 @@ export default function CheckinTagsPage() {
             <Text style={{ color: theme.color.textMuted, marginTop: theme.spacing(3), fontSize: 12 }}>
               Expires {new Date(tag.expires_at).toLocaleDateString()}
             </Text>
-          </View>
+          </GlassCard>
         ))
       )}
-      <Link href="/dashboard">Back to dashboard</Link>
-    </Screen>
+    </AuthenticatedScreen>
   );
 }
