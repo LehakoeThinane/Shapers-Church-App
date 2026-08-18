@@ -40,7 +40,8 @@
           "backgroundColor": "#000000"
         }
       ],
-      "expo-asset"
+      "expo-asset",
+      "expo-web-browser"
     ],
     "extra": {
       "router": {
