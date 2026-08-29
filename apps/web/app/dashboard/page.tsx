@@ -75,9 +75,19 @@ export default function DashboardPage() {
       <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: theme.spacing(2) }}>
         Welcome, {me.person.first_name}
       </Text>
-      <Text style={{ color: theme.color.textMuted, marginBottom: theme.spacing(6) }}>
+      <Text style={{ color: theme.color.textMuted, marginBottom: theme.spacing(2) }}>
         {me.household ? me.household.name ?? "Household" : "No household on file yet"}
       </Text>
+      {me.household ? (
+        <Link
+          href="/household"
+          style={{ color: theme.color.primary, marginBottom: theme.spacing(6), display: "block" }}
+        >
+          View household members →
+        </Link>
+      ) : (
+        <View style={{ marginBottom: theme.spacing(6) }} />
+      )}
 
       <GlassCard style={{ marginBottom: theme.spacing(4) }}>
         <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>Roles</Text>
@@ -117,9 +127,21 @@ export default function DashboardPage() {
       {roles.has("admin") ? (
         <GlassCard style={{ marginBottom: theme.spacing(4) }}>
           <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>Admin</Text>
-          <Link href="/admin/invite">Invite people</Link>
+          <Link href="/admin/invite" style={{ display: "block", marginBottom: theme.spacing(1) }}>
+            Invite people
+          </Link>
+          <Link href="/admin/integrations">
+            Church integrations
+          </Link>
         </GlassCard>
       ) : null}
+
+      <GlassCard style={{ marginBottom: theme.spacing(4) }}>
+        <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>Account</Text>
+        <Link href="/settings" style={{ display: "block" }}>
+          Settings
+        </Link>
+      </GlassCard>
 
       {isGuardian || canCheckIn ? (
         <GlassCard style={{ marginBottom: theme.spacing(4) }}>

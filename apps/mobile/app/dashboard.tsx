@@ -52,9 +52,15 @@ export default function DashboardScreen() {
       <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: theme.spacing(2) }}>
         Welcome, {me.person.first_name}
       </Text>
-      <Text style={{ color: theme.color.textMuted, marginBottom: theme.spacing(6) }}>
+      <Text style={{ color: theme.color.textMuted, marginBottom: theme.spacing(3) }}>
         {me.household ? me.household.name ?? "Household" : "No household on file yet"}
       </Text>
+      {me.household ? (
+        <Link href="/household" style={{ color: theme.color.primary, marginBottom: theme.spacing(6) }}>
+          View household members →
+        </Link>
+      ) : null}
+
       <View style={{ marginBottom: theme.spacing(6) }}>
         <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>Roles</Text>
         {me.roleAssignments.length === 0 ? (
@@ -106,7 +112,7 @@ export default function DashboardScreen() {
 
       {roles.has("admin") ? (
         <View style={{ marginBottom: theme.spacing(6) }}>
-          <Link href="/admin/invite">Invite people</Link>
+          <Link href="/admin">Admin dashboard</Link>
         </View>
       ) : null}
 
@@ -128,6 +134,12 @@ export default function DashboardScreen() {
           ) : null}
         </View>
       ) : null}
+
+      <View style={{ marginBottom: theme.spacing(6) }}>
+        <Link href="/settings" style={{ color: theme.color.textMuted }}>
+          Settings
+        </Link>
+      </View>
 
       <Button title="Sign out" variant="secondary" onPress={onSignOut} />
     </Screen>
