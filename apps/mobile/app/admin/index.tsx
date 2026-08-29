@@ -10,7 +10,7 @@ import { logoSource } from "@/lib/logo";
 export default function AdminScreen() {
     const router = useRouter();
     const [me, setMe] = useState<CurrentUser | null>(null);
-
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
@@ -78,7 +78,14 @@ export default function AdminScreen() {
                     </Text>
                 </Link>
 
-                <View style={{ marginTop: theme.spacing(3), paddingTopWidth: 1 }}>
+                <View
+                    style={{
+                        marginTop: theme.spacing(3),
+                        borderTopWidth: 1,
+                        borderTopColor: theme.color.border,
+                        paddingTop: theme.spacing(2),
+                    }}
+                >
                     <Link href="/admin/integrations">
                         <Text style={{ fontWeight: "500", marginBottom: theme.spacing(1) }}>
                             Church integrations →

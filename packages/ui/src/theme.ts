@@ -12,6 +12,8 @@ export const theme = {
     primary: "#FFFFFF",
     primaryText: "#0A0A0C",
     border: "rgba(255, 255, 255, 0.14)",
+    success: "#4ADE80",
+    warning: "#FBBF24",
     danger: "#F87171",
   },
   // Frosted-panel surfaces (GlassCard, glass header, glass inputs).

@@ -52,15 +52,144 @@ export async function revokeRole(client: ShapersClient, roleAssignmentId: string
   if (error) throw error;
 }
 
+export type SyncFailureKind = "checkin" | "person_milestone";
+
+export interface SyncFailure {
+  id: string;
+  kind: SyncFailureKind;
+  church_id: string;
+  person_id: string;
+  sync_status: "failed";
+  created_at: string;
+  title: string;
+  detail: string;
+}
+
+export async function getSyncFailures(
+  client: ShapersClient,
+  churchId: string
+): Promise<SyncFailure[]> {
+  const [checkinsResult, milestonesResult] = await Promise.all([
+    client
+      .from("checkin")
+      .select("id, church_id, person_id, sync_status, created_at")
+      .eq("church_id", churchId)
+      .eq("sync_status", "failed")
+      .order("created_at", { ascending: false }),
+    client
+      .from("person_milestone")
+      .select("id, church_id, person_id, milestone_type, sync_status, created_at")
+      .eq("church_id", churchId)
+      .eq("sync_status", "failed")
+      .order("created_at", { ascending: false }),
+  ]);
+
+  if (checkinsResult.error) throw checkinsResult.error;
+  if (milestonesResult.error) throw milestonesResult.error;
+
+  const checkins = (checkinsResult.data ?? []).map((row: any) => ({
+    id: row.id,
+    kind: "checkin" as const,
+    church_id: row.church_id,
+    person_id: row.person_id,
+    sync_status: "failed" as const,
+    created_at: row.created_at,
+    title: "Check-in sync failed",
+    detail: "The child check-in was not written back to Planning Center.",
+  }));
+
+  const milestones = (milestonesResult.data ?? []).map((row: any) => ({
+    id: row.id,
+    kind: "person_milestone" as const,
+    church_id: row.church_id,
+    person_id: row.person_id,
+    sync_status: "failed" as const,
+    created_at: row.created_at,
+    title: `Milestone sync failed: ${row.milestone_type ?? "achievement"}`,
+    detail: "The milestone update could not be synced to Planning Center.",
+  }));
+
+  return [...checkins, ...milestones].sort(
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
+}
+
+export async function retrySyncFailure(
+  client: ShapersClient,
+  kind: SyncFailureKind,
+  failureId: string,
+  churchId: string
+): Promise<void> {
+  const table = kind === "checkin" ? "checkin" : "person_milestone";
+  const { error } = await client
+    .from(table)
+    .update({ sync_status: "pending" })
+    .eq("id", failureId)
+    .eq("church_id", churchId);
+
+  if (error) throw error;
+}
+
 // Church integrations (Planning Center OAuth setup)
+export type ChurchIntegrationProvider = "planning_center";
+
 export interface ChurchIntegration {
   id: string;
   church_id: string;
-  provider: "planning_center";
+  provider: ChurchIntegrationProvider;
+  encrypted_token?: string;
   connected_by: string | null;
   connected_at: string;
   last_synced_at: string | null;
   status: "active" | "token_expired" | "error";
+}
+
+export interface PlanningCenterOAuthUrlInput {
+  clientId: string;
+  redirectUri: string;
+  state: string;
+  scope?: string;
+}
+
+export function buildPlanningCenterOAuthUrl({
+  clientId,
+  redirectUri,
+  state,
+  scope = "people check-ins",
+}: PlanningCenterOAuthUrlInput): string {
+  const params = new URLSearchParams({
+    client_id: clientId,
+    redirect_uri: redirectUri,
+    response_type: "code",
+    state,
+    scope,
+  });
+
+  return `https://api.planningcenteronline.com/oauth/authorize?${params.toString()}`;
+}
+
+export interface ConnectPlanningCenterInput {
+  churchId: string;
+  code: string;
+  redirectUri: string;
+  connectedByPersonId?: string;
+}
+
+export async function connectPlanningCenter(
+  client: ShapersClient,
+  input: ConnectPlanningCenterInput
+): Promise<ChurchIntegration> {
+  const { data, error } = await client.functions.invoke("pc-oauth-connect", {
+    body: {
+      church_id: input.churchId,
+      code: input.code,
+      redirect_uri: input.redirectUri,
+      connected_by_person_id: input.connectedByPersonId ?? null,
+    },
+  });
+
+  if (error) throw error;
+  return data as ChurchIntegration;
 }
 
 // GET /admin/integrations — church_integration_select_admin RLS enforces admin-only
@@ -80,7 +209,7 @@ export async function getChurchIntegrations(
 export async function getChurchIntegration(
   client: ShapersClient,
   churchId: string,
-  provider: string
+  provider: ChurchIntegrationProvider
 ): Promise<ChurchIntegration | null> {
   const { data, error } = await client
     .from("church_integration")
@@ -104,7 +233,7 @@ export async function getChurchIntegration(
 export async function saveChurchIntegrationToken(
   client: ShapersClient,
   churchId: string,
-  provider: string,
+  provider: ChurchIntegrationProvider,
   encryptedToken: string
 ): Promise<ChurchIntegration> {
   const { data, error } = await client
