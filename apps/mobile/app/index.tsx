@@ -1,10 +1,13 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
+import { LoadingScreen, Screen, Text, theme } from "@shapers/ui";
 import { getCurrentUser } from "@shapers/api-client";
 import { getSupabaseClient } from "@/lib/supabase";
+import { logoSource } from "@/lib/logo";
 
 export default function Index() {
   const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -22,15 +25,25 @@ export default function Index() {
 
       const me = await getCurrentUser(client);
       if (cancelled) return;
-      router.replace(me ? "/dashboard" : "/onboarding/join");
+      router.replace(me ? "/dashboard" : "/onboarding/match");
     }
 
-    route();
+    route().catch((err) => {
+      if (!cancelled) setError(err instanceof Error ? err.message : "Something went wrong");
+    });
 
     return () => {
       cancelled = true;
     };
   }, [router]);
 
-  return null;
+  if (error) {
+    return (
+      <Screen logoSource={logoSource}>
+        <Text style={{ color: theme.color.danger }}>{error}</Text>
+      </Screen>
+    );
+  }
+
+  return <LoadingScreen logoSource={logoSource} />;
 }

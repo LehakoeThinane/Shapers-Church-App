@@ -42,3 +42,45 @@ export async function signOut(client: ShapersClient) {
   const { error } = await client.auth.signOut();
   if (error) throw error;
 }
+
+// Kicks off the Supabase OAuth redirect flow. On web (skipBrowserRedirect
+// unset) this navigates the whole page away to Google and back to
+// `redirectTo`; the caller doesn't get a chance to run code after this
+// resolves. On mobile, pass skipBrowserRedirect so the caller gets the
+// provider URL back and can open it in an in-app browser session instead.
+export async function signInWithGoogle(
+  client: ShapersClient,
+  redirectTo: string,
+  options?: { skipBrowserRedirect?: boolean }
+) {
+  const { data, error } = await client.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo,
+      skipBrowserRedirect: options?.skipBrowserRedirect,
+      // Without this, Google only hands back an email — no name — and
+      // completeGoogleOnboarding() has nothing to auto-fill with, so it
+      // falls back to the manual /onboarding/match form. Explicitly
+      // requesting profile is what makes the silent, formless join work.
+      scopes: "email profile",
+      // Force the consent screen every time instead of silently reusing
+      // a prior authorization — otherwise someone who already approved
+      // this app under the old (email-only) scope keeps getting the old,
+      // narrower grant with no profile data even after the change above.
+      queryParams: { prompt: "consent" },
+    },
+  });
+  if (error) throw error;
+  return data;
+}
+
+// PKCE's redirect carries a single-use auth code as a query param, e.g.
+// shapers://auth/callback?code=..., rather than tokens in the fragment —
+// used by mobile's googleAuth.ts, which has no browser to auto-detect it
+// the way the web client's detectSessionInUrl does. Exported (and tested)
+// from here rather than living in apps/mobile, which has no test runner.
+export function extractOAuthCodeFromUrl(url: string): string | null {
+  const query = url.split("?")[1]?.split("#")[0];
+  if (!query) return null;
+  return new URLSearchParams(query).get("code");
+}

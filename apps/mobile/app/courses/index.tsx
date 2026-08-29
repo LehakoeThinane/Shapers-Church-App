@@ -1,0 +1,77 @@
+import { useEffect, useState } from "react";
+import { Link } from "expo-router";
+import { View } from "react-native";
+import { LoadingScreen, Screen, Text, theme } from "@shapers/ui";
+import { getCourses } from "@shapers/api-client";
+import type { Course } from "@shapers/types";
+import { getSupabaseClient } from "@/lib/supabase";
+import { logoSource } from "@/lib/logo";
+
+export default function CoursesScreen() {
+  const [courses, setCourses] = useState<Course[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    getCourses(getSupabaseClient())
+      .then((result) => {
+        if (!cancelled) setCourses(result);
+      })
+      .catch((err) => {
+        if (!cancelled) setError(err instanceof Error ? err.message : "Something went wrong");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (error) {
+    return (
+      <Screen logoSource={logoSource}>
+        <Text style={{ color: theme.color.danger }}>{error}</Text>
+      </Screen>
+    );
+  }
+
+  if (!courses) return <LoadingScreen logoSource={logoSource} />;
+
+  const seriesCourses = courses.filter((c) => c.course_type === "sermon_series");
+  const programCourses = courses.filter((c) => c.course_type === "program");
+
+  return (
+    <Screen logoSource={logoSource}>
+      <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: theme.spacing(6) }}>Courses</Text>
+
+      {courses.length === 0 ? (
+        <Text style={{ color: theme.color.textMuted }}>No courses published yet.</Text>
+      ) : (
+        <>
+          {programCourses.length > 0 ? (
+            <View style={{ marginBottom: theme.spacing(6) }}>
+              <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>Programs</Text>
+              {programCourses.map((c) => (
+                <Link key={c.id} href={`/courses/${c.id}`} style={{ paddingVertical: 6 }}>
+                  {c.title}
+                  {c.unlocks_milestone ? ` (unlocks ${c.unlocks_milestone})` : ""}
+                </Link>
+              ))}
+            </View>
+          ) : null}
+
+          {seriesCourses.length > 0 ? (
+            <View style={{ marginBottom: theme.spacing(6) }}>
+              <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>Sermon series</Text>
+              {seriesCourses.map((c) => (
+                <Link key={c.id} href={`/courses/${c.id}`} style={{ paddingVertical: 6 }}>
+                  {c.title}
+                </Link>
+              ))}
+            </View>
+          ) : null}
+        </>
+      )}
+
+      <Link href="/dashboard">Back to dashboard</Link>
+    </Screen>
+  );
+}

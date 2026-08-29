@@ -1,3 +1,20 @@
 packages:
   - "apps/*"
   - "packages/*"
+
+# Expo's native-module autolinking script walks node_modules with plain
+# Node resolution and can't handle pnpm's default isolated/symlinked
+# layout — this is Expo's own documented fix for monorepos.
+# https://docs.expo.dev/guides/monorepos/
+nodeLinker: hoisted
+
+# nodeLinker: hoisted alone wasn't enough on EAS's cloud build image —
+# still hit "cannot find symbol expo.core.ExpoModulesPackage" (autolinking
+# resolving a class that doesn't exist in expo-modules-core 2.x). This
+# explicit hoist pattern for the three packages autolinking depends on is
+# the combination that resolved it for others hitting the same error in
+# pnpm monorepos: https://github.com/expo/eas-cli/issues/2789
+publicHoistPattern:
+  - "*expo-modules-core*"
+  - "*expo-modules-autolinking*"
+  - "*babel-preset-expo*"

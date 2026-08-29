@@ -1,4 +1,25 @@
+import type { Church } from "@shapers/types";
 import type { ShapersClient } from "./client";
+
+// GET /admin/integrations-ish — the caller's own church row. invite_code
+// is deliberately NOT included: column-level privileges (see
+// supabase/migrations/20260818090200_church_invite_code_admin_only.sql)
+// mean `authenticated` can't select it here regardless of what's asked
+// for — use getChurchInviteCode() instead, which checks the caller is an
+// admin of this church before returning it.
+export async function getChurch(client: ShapersClient, churchId: string): Promise<Church | null> {
+  const { data, error } = await client.from("church").select("*").eq("id", churchId).maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
+// Admin-only. See get_church_invite_code() in
+// supabase/migrations/20260818090200_church_invite_code_admin_only.sql.
+export async function getChurchInviteCode(client: ShapersClient, churchId: string): Promise<string> {
+  const { data, error } = await client.rpc("get_church_invite_code", { p_church_id: churchId });
+  if (error) throw error;
+  return data as string;
+}
 
 // POST /onboarding/join-church
 // Looks up a church by invite code via the find_church_by_invite_code RPC
@@ -9,6 +30,15 @@ export async function findChurchByInviteCode(client: ShapersClient, inviteCode: 
   const { data, error } = await client.rpc("find_church_by_invite_code", {
     p_invite_code: inviteCode,
   });
+  if (error) throw error;
+  return data?.[0] ?? null;
+}
+
+// Single-church deployments don't need an invite code just to sign up —
+// this resolves the one church that exists, via the same SECURITY
+// DEFINER pattern as findChurchByInviteCode.
+export async function getDefaultChurch(client: ShapersClient) {
+  const { data, error } = await client.rpc("get_default_church");
   if (error) throw error;
   return data?.[0] ?? null;
 }
@@ -34,4 +64,47 @@ export async function matchPerson(client: ShapersClient, input: MatchPersonInput
   });
   if (error) throw error;
   return data as string;
+}
+
+// Auto-completes the join-church step after a Google sign-in, using
+// whatever name Google gave us (Supabase populates user_metadata from
+// the OAuth identity) instead of asking the person to retype it on a
+// separate screen. Deliberately never gives up on finding *some* name to
+// use — a single-word Google display name, or even no name data at all,
+// still completes silently (falling back to the email's local part)
+// rather than dropping the person into the manual form, since that form
+// is meant to be an exceptional fallback, not something Google sign-in
+// regularly hits. Returns null only if there's no session at all, or no
+// church exists yet to join.
+export async function completeGoogleOnboarding(client: ShapersClient): Promise<string | null> {
+  const {
+    data: { user },
+  } = await client.auth.getUser();
+  if (!user) return null;
+
+  const meta = (user.user_metadata ?? {}) as Record<string, string | undefined>;
+  const fullName = (meta.full_name ?? meta.name ?? "").trim();
+  const nameParts = fullName.split(/\s+/).filter(Boolean);
+  const emailLocalPart = user.email?.split("@")[0];
+  const firstName = meta.given_name || nameParts[0] || emailLocalPart || "Member";
+  const lastName = meta.family_name || nameParts.slice(1).join(" ");
+
+  const church = await getDefaultChurch(client);
+  if (!church) return null;
+
+  return matchPerson(client, {
+    churchId: church.id,
+    firstName,
+    lastName,
+    email: user.email ?? undefined,
+  });
+}
+
+// POST /become-member — redeems a (now membership-only) invite code,
+// granting the 'member' role to an already-onboarded caller. Unlike
+// matchPerson, this never creates an app_user row — it only adds a role
+// to one that already exists.
+export async function becomeMember(client: ShapersClient, inviteCode: string) {
+  const { error } = await client.rpc("onboard_become_member", { p_invite_code: inviteCode });
+  if (error) throw error;
 }

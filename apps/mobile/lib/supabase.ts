@@ -8,7 +8,7 @@ export function getSupabaseClient(): ShapersClient {
   if (!client) {
     client = createShapersClient({
       url: process.env.EXPO_PUBLIC_SUPABASE_URL ?? "",
-      anonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? "",
+      anonKey: process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "",
       storage: AsyncStorage,
     });
   }

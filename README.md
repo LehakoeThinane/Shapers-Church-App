@@ -51,17 +51,18 @@ pnpm dlx supabase start   # spins up local Postgres + Studio, applies migrations
 
 ### 2. Environment variables
 
-Copy the example env files and fill in your project's URL + anon key
-(Supabase dashboard → Project Settings → API):
+Copy the example env files and fill in your project's URL + publishable
+key (Supabase dashboard → Project Settings → API; "publishable key" is
+the current name for what used to be called the anon key):
 
 ```bash
 cp apps/web/.env.example apps/web/.env.local
 cp apps/mobile/.env.example apps/mobile/.env
 ```
 
-Never commit the filled-in `.env.local` / `.env` files or the
-`service_role` key anywhere in this repo — only the anon key belongs on
-the client.
+Never commit the filled-in `.env.local` / `.env` files or the `secret` /
+`service_role` key anywhere in this repo — only the publishable key
+belongs on the client.
 
 ### 3. Install & run
 

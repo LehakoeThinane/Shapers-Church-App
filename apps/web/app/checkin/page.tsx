@@ -1,0 +1,68 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { GlassCard, LoadingScreen, Text, theme } from "@shapers/ui";
+import { getMyCheckinTags } from "@shapers/api-client";
+import type { MyCheckinTag } from "@shapers/types";
+import { getSupabaseClient } from "@/lib/supabase";
+import { logoSource } from "@/lib/logo";
+import { QrCode } from "@/components/QrCode";
+import { AuthenticatedScreen } from "@/components/AuthenticatedScreen";
+
+export default function CheckinTagsPage() {
+  const [tags, setTags] = useState<MyCheckinTag[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    getMyCheckinTags(getSupabaseClient())
+      .then((result) => {
+        if (!cancelled) setTags(result);
+      })
+      .catch((err) => {
+        if (!cancelled) setError(err instanceof Error ? err.message : "Something went wrong");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (error) {
+    return (
+      <AuthenticatedScreen logoSource={logoSource}>
+        <Text style={{ color: theme.color.danger }}>{error}</Text>
+      </AuthenticatedScreen>
+    );
+  }
+
+  if (!tags) return <LoadingScreen logoSource={logoSource} />;
+
+  return (
+    <AuthenticatedScreen logoSource={logoSource}>
+      <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: theme.spacing(2) }}>
+        This week&apos;s check-in codes
+      </Text>
+      <Text style={{ color: theme.color.textMuted, marginBottom: theme.spacing(6) }}>
+        Show one of these to staff at drop-off. Each code stops working once the week rolls
+        over.
+      </Text>
+      {tags.length === 0 ? (
+        <Text style={{ color: theme.color.textMuted }}>
+          No check-in codes yet — these are generated weekly for children on file.
+        </Text>
+      ) : (
+        tags.map(({ tag, child }) => (
+          <GlassCard key={tag.id} style={{ alignItems: "center", marginBottom: theme.spacing(4) }}>
+            <Text style={{ fontSize: 18, fontWeight: "600", marginBottom: theme.spacing(3) }}>
+              {child.first_name} {child.last_name}
+            </Text>
+            <QrCode value={tag.qr_token} size={200} />
+            <Text style={{ color: theme.color.textMuted, marginTop: theme.spacing(3), fontSize: 12 }}>
+              Expires {new Date(tag.expires_at).toLocaleDateString()}
+            </Text>
+          </GlassCard>
+        ))
+      )}
+    </AuthenticatedScreen>
+  );
+}

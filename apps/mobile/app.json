@@ -7,7 +7,7 @@
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "icon": "./assets/logo.png",
+    "icon": "./assets/icon-square.png",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "org.shapers.church"
@@ -15,21 +15,42 @@
     "android": {
       "package": "org.shapers.church",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/logo.png",
-        "backgroundColor": "#2A2A72"
-      }
+        "foregroundImage": "./assets/icon-square.png",
+        "backgroundColor": "#000000"
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "plugins": [
       "expo-router",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Shapers Church uses your camera to scan check-in QR codes."
+        }
+      ],
       [
         "expo-splash-screen",
         {
           "image": "./assets/logo.png",
           "imageWidth": 160,
           "resizeMode": "contain",
-          "backgroundColor": "#2A2A72"
+          "backgroundColor": "#000000"
         }
-      ]
-    ]
+      ],
+      "expo-asset",
+      "expo-web-browser"
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "df1401a0-2a50-4ee7-a454-d021354b9af9"
+      }
+    },
+    "owner": "lehakoe"
   }
 }

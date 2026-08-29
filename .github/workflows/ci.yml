@@ -37,7 +37,21 @@ jobs:
           node-version: 20
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter web lint
+      - run: pnpm lint
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.6.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
 
   build-web:
     runs-on: ubuntu-latest
@@ -59,6 +73,30 @@ jobs:
         env:
           NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder
+
+  build-mobile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.6.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # `expo export` bundles for web/android/ios locally (Metro), with no
+      # EAS account or device/simulator needed — same reasoning as
+      # build-web: it never contacts a real Supabase project, so
+      # placeholders are fine. This is the step that actually exercises
+      # autolinking/bundler config (see commit 06e61d9's pnpm-hoisting
+      # fix), which nothing else in CI touches.
+      - name: Export mobile app
+        run: pnpm --filter mobile build
+        env:
+          EXPO_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: placeholder
 
   db-migrations:
     runs-on: ubuntu-latest
@@ -86,7 +124,13 @@ jobs:
         run: |
           PGPASSWORD=postgres psql -h localhost -U postgres -c "
             create schema auth;
-            create table auth.users (id uuid primary key default gen_random_uuid());
+            create table auth.users (
+              id uuid primary key default gen_random_uuid(),
+              email text,
+              phone text,
+              email_confirmed_at timestamptz,
+              phone_confirmed_at timestamptz
+            );
             create or replace function auth.uid() returns uuid language sql stable as \$\$ select null::uuid \$\$;
             create role authenticated;
             create role anon;

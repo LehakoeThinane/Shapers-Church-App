@@ -1,0 +1,118 @@
+/* Liquid Glass primitives for the web target. RN-Web doesn't expose
+   backdrop-filter, :hover, or :focus through its typed style API, so the
+   .web.tsx component variants render plain DOM elements with these
+   classes directly instead of RN View/Pressable. See packages/ui. */
+
+@keyframes sc-ambient-float {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(3%, -4%) scale(1.08);
+  }
+}
+
+@keyframes sc-glow-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 24px 0 rgba(255, 255, 255, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+  }
+  50% {
+    box-shadow: 0 0 40px 4px rgba(255, 255, 255, 0.18), inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+  }
+}
+
+@keyframes sc-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Next.js <Link> renders a raw <a> with zero default styling — without
+   this every link on the site falls back to the browser's default
+   blue/purple/underlined look, which was easy to miss on the old white
+   background and is glaring against this dark theme. */
+a {
+  color: #f5f5f7;
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+
+a:hover {
+  opacity: 0.72;
+}
+
+a:visited {
+  color: #f5f5f7;
+}
+
+.sc-ambient-bg {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: #050506;
+  z-index: -1;
+}
+
+.sc-ambient-blob {
+  position: absolute;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0) 70%);
+  filter: blur(40px);
+  animation: sc-ambient-float 18s ease-in-out infinite;
+}
+
+.sc-glass-card {
+  position: relative;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  animation: sc-glow-pulse 6s ease-in-out infinite, sc-fade-in 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sc-glass-card--elevated {
+  background: rgba(255, 255, 255, 0.11);
+}
+
+.sc-glass-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(5, 5, 6, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 1px 24px 0 rgba(255, 255, 255, 0.12);
+}
+
+.sc-glass-button {
+  transition: box-shadow 0.15s ease, transform 0.15s ease, background 0.15s ease;
+  cursor: pointer;
+}
+
+.sc-glass-button:hover:not(:disabled) {
+  box-shadow: 0 0 28px 2px rgba(255, 255, 255, 0.35);
+  transform: translateY(-1px);
+}
+
+.sc-glass-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.sc-glass-button--secondary {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.sc-glass-button--secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 20px 1px rgba(255, 255, 255, 0.22);
+}

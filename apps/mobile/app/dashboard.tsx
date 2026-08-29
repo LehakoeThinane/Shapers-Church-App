@@ -1,27 +1,31 @@
 import { useEffect, useState } from "react";
-import { useRouter } from "expo-router";
-import { Text, View } from "react-native";
-import { Button, Screen, theme } from "@shapers/ui";
-import { getCurrentUser, signOut } from "@shapers/api-client";
-import type { CurrentUser } from "@shapers/types";
+import { useRouter, Link } from "expo-router";
+import { View } from "react-native";
+import { Button, LoadingScreen, Screen, Text, theme } from "@shapers/ui";
+import { getCurrentUser, getMilestones, signOut } from "@shapers/api-client";
+import type { CurrentUser, PersonMilestone } from "@shapers/types";
 import { getSupabaseClient } from "@/lib/supabase";
 import { logoSource } from "@/lib/logo";
 
 export default function DashboardScreen() {
   const router = useRouter();
   const [me, setMe] = useState<CurrentUser | null>(null);
+  const [milestones, setMilestones] = useState<PersonMilestone[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
-    getCurrentUser(getSupabaseClient())
-      .then((result) => {
+    const client = getSupabaseClient();
+    getCurrentUser(client)
+      .then(async (result) => {
         if (cancelled) return;
         if (!result) {
-          router.replace("/onboarding/join");
+          router.replace("/onboarding/match");
           return;
         }
         setMe(result);
+        const m = await getMilestones(client, result.person.id);
+        if (!cancelled) setMilestones(m);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -36,16 +40,27 @@ export default function DashboardScreen() {
     router.replace("/(auth)/login");
   }
 
-  if (loading || !me) return null;
+  if (loading || !me) return <LoadingScreen logoSource={logoSource} />;
+
+  const roles = new Set(me.roleAssignments.map((ra) => ra.role));
+  const canCheckIn = roles.has("admin") || roles.has("kids_staff");
+  const isGuardian = roles.has("guardian");
+  const isMember = roles.has("member");
 
   return (
     <Screen logoSource={logoSource}>
       <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: theme.spacing(2) }}>
         Welcome, {me.person.first_name}
       </Text>
-      <Text style={{ color: theme.color.textMuted, marginBottom: theme.spacing(6) }}>
+      <Text style={{ color: theme.color.textMuted, marginBottom: theme.spacing(3) }}>
         {me.household ? me.household.name ?? "Household" : "No household on file yet"}
       </Text>
+      {me.household ? (
+        <Link href="/household" style={{ color: theme.color.primary, marginBottom: theme.spacing(6) }}>
+          View household members →
+        </Link>
+      ) : null}
+
       <View style={{ marginBottom: theme.spacing(6) }}>
         <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>Roles</Text>
         {me.roleAssignments.length === 0 ? (
@@ -59,6 +74,73 @@ export default function DashboardScreen() {
           ))
         )}
       </View>
+
+      {milestones.length > 0 ? (
+        <View style={{ marginBottom: theme.spacing(6) }}>
+          <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>Milestones</Text>
+          {milestones.map((m) => (
+            <Text key={m.id}>
+              {m.milestone_type} — {m.achieved_at}
+            </Text>
+          ))}
+        </View>
+      ) : null}
+
+      <View style={{ marginBottom: theme.spacing(1) }}>
+        <Link href="/groups">Groups</Link>
+      </View>
+      <View style={{ marginBottom: theme.spacing(1) }}>
+        <Link href="/announcements">Announcements</Link>
+      </View>
+      <View style={{ marginBottom: theme.spacing(1) }}>
+        <Link href="/events">Events</Link>
+      </View>
+      {isMember ? (
+        <>
+          <View style={{ marginBottom: theme.spacing(1) }}>
+            <Link href="/courses">Courses</Link>
+          </View>
+          <View style={{ marginBottom: theme.spacing(6) }}>
+            <Link href="/prayer">Prayer wall</Link>
+          </View>
+        </>
+      ) : (
+        <View style={{ marginBottom: theme.spacing(6) }}>
+          <Link href="/become-member">Become a member</Link>
+        </View>
+      )}
+
+      {roles.has("admin") ? (
+        <View style={{ marginBottom: theme.spacing(6) }}>
+          <Link href="/admin">Admin dashboard</Link>
+        </View>
+      ) : null}
+
+      {isGuardian || canCheckIn ? (
+        <View style={{ marginBottom: theme.spacing(6) }}>
+          <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>Check-in</Text>
+          {isGuardian ? (
+            <Link href="/checkin" style={{ marginBottom: theme.spacing(1) }}>
+              My children&apos;s QR codes
+            </Link>
+          ) : null}
+          {canCheckIn ? (
+            <>
+              <Link href="/checkin/scan" style={{ marginBottom: theme.spacing(1) }}>
+                Check in (staff)
+              </Link>
+              <Link href="/checkin/pickup">Pickup (staff)</Link>
+            </>
+          ) : null}
+        </View>
+      ) : null}
+
+      <View style={{ marginBottom: theme.spacing(6) }}>
+        <Link href="/settings" style={{ color: theme.color.textMuted }}>
+          Settings
+        </Link>
+      </View>
+
       <Button title="Sign out" variant="secondary" onPress={onSignOut} />
     </Screen>
   );
