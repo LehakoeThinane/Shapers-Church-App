@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useRouter, Link } from "expo-router";
 import { View } from "react-native";
-import { LoadingScreen, Screen, Text, theme } from "@shapers/ui";
-import { getCurrentUser } from "@shapers/api-client";
+import { Button, LoadingScreen, Screen, Text, theme } from "@shapers/ui";
+import { getCurrentUser, getSyncFailures, retrySyncFailure, type SyncFailure } from "@shapers/api-client";
 import type { CurrentUser } from "@shapers/types";
 import { getSupabaseClient } from "@/lib/supabase";
 import { logoSource } from "@/lib/logo";
@@ -12,6 +12,8 @@ export default function AdminScreen() {
     const [me, setMe] = useState<CurrentUser | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [syncFailures, setSyncFailures] = useState<SyncFailure[]>([]);
+    const [retryingId, setRetryingId] = useState<string | null>(null);
 
     useEffect(() => {
         let cancelled = false;
@@ -31,6 +33,8 @@ export default function AdminScreen() {
                 }
 
                 setMe(result);
+                const failures = await getSyncFailures(client, result.person.church_id);
+                if (!cancelled) setSyncFailures(failures);
             })
             .catch((err) => {
                 if (!cancelled) {
@@ -45,6 +49,13 @@ export default function AdminScreen() {
             cancelled = true;
         };
     }, [router]);
+
+    async function retry(failure: SyncFailure) {
+        setRetryingId(failure.id); setError(null);
+        try { await retrySyncFailure(getSupabaseClient(), failure.kind, failure.id, failure.church_id); setSyncFailures((current) => current.filter((item) => item.id !== failure.id)); }
+        catch (err) { setError(err instanceof Error ? err.message : "Failed to retry sync."); }
+        finally { setRetryingId(null); }
+    }
 
     if (loading || !me) return <LoadingScreen logoSource={logoSource} />;
 
@@ -95,13 +106,27 @@ export default function AdminScreen() {
                         </Text>
                     </Link>
                 </View>
+                <Link href="/admin/new-here" style={{ marginTop: theme.spacing(3) }}>
+                    <Text style={{ fontWeight: "500", marginBottom: theme.spacing(1) }}>New Here content →</Text>
+                    <Text style={{ color: theme.color.textMuted, fontSize: 12 }}>Edit the public welcome page</Text>
+                </Link>
+                <Link href="/admin/sermons" style={{ marginTop: theme.spacing(3) }}>
+                    <Text style={{ fontWeight: "500", marginBottom: theme.spacing(1) }}>Sermon library →</Text>
+                    <Text style={{ color: theme.color.textMuted, fontSize: 12 }}>Add drafts and publish sermon media</Text>
+                </Link>
+                <Link href="/admin/growth-track" style={{ marginTop: theme.spacing(3) }}>
+                    <Text style={{ fontWeight: "500", marginBottom: theme.spacing(1) }}>Growth Track →</Text>
+                    <Text style={{ color: theme.color.textMuted, fontSize: 12 }}>Build stages and add journey lessons</Text>
+                </Link>
+                <Link href="/admin/assessment" style={{ marginTop: theme.spacing(3) }}>
+                    <Text style={{ fontWeight: "500", marginBottom: theme.spacing(1) }}>Purpose assessment →</Text>
+                    <Text style={{ color: theme.color.textMuted, fontSize: 12 }}>Create weighted gift questions</Text>
+                </Link>
             </View>
 
             <View style={{ marginBottom: theme.spacing(4) }}>
                 <Text style={{ fontWeight: "600", marginBottom: theme.spacing(3) }}>Sync Status</Text>
-                <Text style={{ color: theme.color.textMuted, fontSize: 12 }}>
-                    ⚠️ Sync status dashboard coming soon
-                </Text>
+                {syncFailures.length === 0 ? <Text style={{ color: theme.color.textMuted, fontSize: 12 }}>✓ No failed syncs right now</Text> : syncFailures.map((failure) => <View key={failure.id} style={{ marginBottom: theme.spacing(3) }}><Text style={{ fontWeight: "500", marginBottom: 3 }}>{failure.title}</Text><Text style={{ color: theme.color.textMuted, fontSize: 12, marginBottom: 8 }}>{failure.detail}</Text><Button title={retryingId === failure.id ? "Retrying…" : "Retry sync"} variant="secondary" disabled={retryingId === failure.id} onPress={() => retry(failure)} /></View>)}
             </View>
 
             <View>

@@ -1,179 +1,42 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "expo-router";
-import { View } from "react-native";
-import { Button, LoadingScreen, Screen, Text, TextField, theme } from "@shapers/ui";
-import { approvePrayerRequest, getCurrentUser, getPrayerRequests, submitPrayerRequest } from "@shapers/api-client";
-import type { CurrentUser, PrayerRequestForDisplay } from "@shapers/types";
-import { getSupabaseClient } from "@/lib/supabase";
+import { Pressable } from "react-native";
+import { Button, GlassCard, Screen, Text, TextField, theme } from "@shapers/ui";
 import { logoSource } from "@/lib/logo";
 
+type LocalPrayerRequest = { id: string; text: string; anonymous: boolean; status: "pending" | "approved" };
+const starterRequests: LocalPrayerRequest[] = [{ id: "starter-1", text: "For courage and wisdom as I take my next step.", anonymous: false, status: "approved" }];
+
 export default function PrayerScreen() {
-  const [me, setMe] = useState<CurrentUser | null>(null);
-  const [requests, setRequests] = useState<PrayerRequestForDisplay[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [requestText, setRequestText] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [approvingId, setApprovingId] = useState<string | null>(null);
+  const [requests, setRequests] = useState(starterRequests);
+  const [submitted, setSubmitted] = useState(false);
 
-  async function load() {
-    const client = getSupabaseClient();
-    const [currentUser, requestList] = await Promise.all([getCurrentUser(client), getPrayerRequests(client)]);
-    setMe(currentUser);
-    setRequests(requestList);
+  function onSubmit() {
+    const text = requestText.trim();
+    if (!text) return;
+    setRequests((current) => [{ id: `${Date.now()}`, text, anonymous: isAnonymous, status: "pending" }, ...current]);
+    setRequestText("");
+    setIsAnonymous(false);
+    setSubmitted(true);
   }
-
-  useEffect(() => {
-    load().catch((err) => setError(err instanceof Error ? err.message : "Something went wrong"));
-  }, []);
-
-  async function onSubmit() {
-    if (!me) return;
-    setError(null);
-    setSubmitting(true);
-    try {
-      await submitPrayerRequest(getSupabaseClient(), me.person.church_id, me.person.id, requestText, isAnonymous);
-      setRequestText("");
-      setIsAnonymous(false);
-      await load();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  async function onApprove(requestId: string) {
-    setError(null);
-    setApprovingId(requestId);
-    try {
-      await approvePrayerRequest(getSupabaseClient(), requestId);
-      await load();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
-    } finally {
-      setApprovingId(null);
-    }
-  }
-
-  if (error) {
-    return (
-      <Screen logoSource={logoSource}>
-        <Text style={{ color: theme.color.danger }}>{error}</Text>
-      </Screen>
-    );
-  }
-
-  if (!requests || !me) return <LoadingScreen logoSource={logoSource} />;
-
-  const isAdmin = me.roleAssignments.some((ra) => ra.role === "admin");
-  const myPending = requests.filter((r) => !r.request.is_approved && r.request.submitted_by === me.person.id);
-  const othersPending = requests.filter(
-    (r) => !r.request.is_approved && r.request.submitted_by !== me.person.id
-  );
-  const approved = requests.filter((r) => r.request.is_approved);
 
   return (
     <Screen logoSource={logoSource}>
-      <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: theme.spacing(6) }}>
-        Prayer wall
-      </Text>
-
-      <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>Submit a request</Text>
-      <TextField label="Your request" value={requestText} onChangeText={setRequestText} />
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: theme.spacing(4),
-        }}
-      >
-        <Text
-          onPress={() => setIsAnonymous((v) => !v)}
-          style={{ color: isAnonymous ? theme.color.primary : theme.color.textMuted }}
-        >
-          {isAnonymous ? "☑" : "☐"} Submit anonymously
-        </Text>
-      </View>
-      <Button title="Submit" onPress={onSubmit} loading={submitting} disabled={!requestText.trim()} />
-
-      {myPending.length > 0 ? (
-        <View style={{ marginTop: theme.spacing(8) }}>
-          <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>
-            Your requests awaiting approval
-          </Text>
-          {myPending.map(({ request }) => (
-            <View
-              key={request.id}
-              style={{
-                paddingVertical: theme.spacing(3),
-                borderBottomWidth: 1,
-                borderBottomColor: theme.color.border,
-              }}
-            >
-              <Text>{request.request_text}</Text>
-              <Text style={{ color: theme.color.textMuted }}>Awaiting approval</Text>
-            </View>
-          ))}
-        </View>
-      ) : null}
-
-      {isAdmin && othersPending.length > 0 ? (
-        <View style={{ marginTop: theme.spacing(8) }}>
-          <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>
-            Pending approval ({othersPending.length})
-          </Text>
-          {othersPending.map(({ request, submitterName }) => (
-            <View
-              key={request.id}
-              style={{
-                paddingVertical: theme.spacing(3),
-                borderBottomWidth: 1,
-                borderBottomColor: theme.color.border,
-              }}
-            >
-              <Text>{request.request_text}</Text>
-              <Text style={{ color: theme.color.textMuted, marginBottom: theme.spacing(2) }}>
-                {request.is_anonymous ? "Anonymous" : submitterName ?? "Unknown"}
-              </Text>
-              <Button
-                title="Approve"
-                variant="secondary"
-                loading={approvingId === request.id}
-                onPress={() => onApprove(request.id)}
-              />
-            </View>
-          ))}
-        </View>
-      ) : null}
-
-      <View style={{ marginTop: theme.spacing(8) }}>
-        <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>Requests</Text>
-        {approved.length === 0 ? (
-          <Text style={{ color: theme.color.textMuted }}>No approved requests yet.</Text>
-        ) : (
-          approved.map(({ request, submitterName }) => (
-            <View
-              key={request.id}
-              style={{
-                paddingVertical: theme.spacing(3),
-                borderBottomWidth: 1,
-                borderBottomColor: theme.color.border,
-              }}
-            >
-              <Text>{request.request_text}</Text>
-              <Text style={{ color: theme.color.textMuted }}>
-                {request.is_anonymous ? "Anonymous" : submitterName ?? "A church member"}
-              </Text>
-            </View>
-          ))
-        )}
-      </View>
-
-      <View style={{ marginTop: theme.spacing(6) }}>
-        <Link href="/dashboard">Back to dashboard</Link>
-      </View>
+      <Link href="/dashboard" style={{ color: theme.color.textMuted, marginBottom: theme.spacing(6) }}>← Back to dashboard</Link>
+      <Text style={{ color: theme.color.textMuted, letterSpacing: 2, fontSize: 11, fontWeight: "700" }}>CARE</Text>
+      <Text style={{ fontSize: 30, fontWeight: "700", marginTop: theme.spacing(1), marginBottom: theme.spacing(2) }}>Prayer wall</Text>
+      <Text style={{ color: theme.color.textMuted, lineHeight: 21, marginBottom: theme.spacing(6) }}>Share what is on your heart. Your local church can stand with you in prayer.</Text>
+      <GlassCard style={{ marginBottom: theme.spacing(5) }}>
+        <Text style={{ fontWeight: "700", marginBottom: theme.spacing(2) }}>Share a request</Text>
+        <TextField label="Your request" value={requestText} onChangeText={setRequestText} multiline />
+        <Pressable onPress={() => setIsAnonymous((value) => !value)} style={{ paddingVertical: theme.spacing(3) }}><Text style={{ color: isAnonymous ? theme.color.primary : theme.color.textMuted }}>{isAnonymous ? "☑" : "☐"} Submit anonymously</Text></Pressable>
+        <Button title="Submit request" onPress={onSubmit} disabled={!requestText.trim()} />
+        {submitted ? <Text style={{ color: theme.color.success, marginTop: theme.spacing(3) }}>Request saved locally and awaiting approval.</Text> : null}
+      </GlassCard>
+      <Text style={{ fontSize: 18, fontWeight: "700", marginBottom: theme.spacing(3) }}>Community prayers</Text>
+      {requests.map((request) => <GlassCard key={request.id} style={{ marginBottom: theme.spacing(3) }}><Text style={{ lineHeight: 21 }}>{request.text}</Text><Text style={{ color: theme.color.textMuted, marginTop: theme.spacing(2) }}>{request.status === "pending" ? "Awaiting approval" : request.anonymous ? "Anonymous" : "A church member"}</Text></GlassCard>)}
     </Screen>
   );
 }

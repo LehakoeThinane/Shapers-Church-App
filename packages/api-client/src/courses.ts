@@ -8,7 +8,7 @@ import type {
 } from "@shapers/types";
 import type { ShapersClient } from "./client";
 
-export type CourseType = "sermon_series" | "program";
+export type CourseType = "sermon_series" | "program" | "growth_track";
 
 // GET /courses?type=...
 export async function getCourses(client: ShapersClient, type?: CourseType): Promise<Course[]> {

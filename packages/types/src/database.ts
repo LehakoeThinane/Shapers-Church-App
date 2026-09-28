@@ -32,6 +32,7 @@ export interface Database {
           name: string;
           timezone: string;
           invite_code: string;
+          slug: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -40,6 +41,7 @@ export interface Database {
           name: string;
           timezone?: string;
           invite_code?: string;
+          slug?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -333,7 +335,8 @@ export interface Database {
           id: string;
           church_id: string;
           title: string;
-          course_type: "sermon_series" | "program";
+          course_type: "sermon_series" | "program" | "growth_track";
+          position: number;
           unlocks_milestone: string | null;
           is_published: boolean;
           created_at: string;
@@ -343,7 +346,8 @@ export interface Database {
           id?: string;
           church_id: string;
           title: string;
-          course_type: "sermon_series" | "program";
+          course_type: "sermon_series" | "program" | "growth_track";
+          position?: number;
           unlocks_milestone?: string | null;
           is_published?: boolean;
           created_at?: string;
@@ -552,6 +556,36 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["prayer_request"]["Insert"]>;
         Relationships: [];
       };
+      sermon: {
+        Row: { id: string; church_id: string; series_course_id: string | null; title: string; speaker_name: string; scripture_reference: string | null; video_url: string | null; audio_url: string | null; thumbnail_url: string | null; duration_seconds: number | null; is_downloadable: boolean; published_at: string | null; created_at: string };
+        Insert: { id?: string; church_id: string; series_course_id?: string | null; title: string; speaker_name: string; scripture_reference?: string | null; video_url?: string | null; audio_url?: string | null; thumbnail_url?: string | null; duration_seconds?: number | null; is_downloadable?: boolean; published_at?: string | null; created_at?: string };
+        Update: Partial<Database["public"]["Tables"]["sermon"]["Insert"]>;
+        Relationships: [];
+      };
+      church_public_content: {
+        Row: { id: string; church_id: string; key: string; body: string | null; updated_at: string };
+        Insert: { id?: string; church_id: string; key: string; body?: string | null; updated_at?: string };
+        Update: Partial<Database["public"]["Tables"]["church_public_content"]["Insert"]>;
+        Relationships: [];
+      };
+      purpose_assessment_question: {
+        Row: { id: string; church_id: string; question_text: string; category: "spiritual_gift" | "natural_strength" | "marketplace_interest"; options: { key: string; text: string; weight?: Record<string, number> }[]; position: number };
+        Insert: { id?: string; church_id: string; question_text: string; category: "spiritual_gift" | "natural_strength" | "marketplace_interest"; options: { key: string; text: string; weight?: Record<string, number> }[]; position?: number };
+        Update: Partial<Database["public"]["Tables"]["purpose_assessment_question"]["Insert"]>;
+        Relationships: [];
+      };
+      person_purpose_profile: {
+        Row: { id: string; church_id: string; person_id: string; gifts: string[]; marketplace_calling: string | null; raw_answers: Record<string, string> | null; completed_at: string; updated_at: string };
+        Insert: { id?: string; church_id: string; person_id: string; gifts?: string[]; marketplace_calling?: string | null; raw_answers?: Record<string, string> | null; completed_at?: string; updated_at?: string };
+        Update: Partial<Database["public"]["Tables"]["person_purpose_profile"]["Insert"]>;
+        Relationships: [];
+      };
+      testimony: {
+        Row: { id: string; church_id: string; submitted_by: string | null; title: string | null; body: string; media_url: string | null; is_anonymous: boolean; is_approved: boolean; approved_by: string | null; approved_at: string | null; created_at: string };
+        Insert: { id?: string; church_id: string; submitted_by?: string | null; title?: string | null; body: string; media_url?: string | null; is_anonymous?: boolean; is_approved?: boolean; approved_by?: string | null; approved_at?: string | null; created_at?: string };
+        Update: Partial<Database["public"]["Tables"]["testimony"]["Insert"]>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -610,6 +644,30 @@ export interface Database {
       };
       get_church_invite_code: {
         Args: { p_church_id: string };
+        Returns: string;
+      };
+      get_public_church: {
+        Args: { p_slug: string };
+        Returns: unknown;
+      };
+      get_public_sermons: {
+        Args: { p_slug: string };
+        Returns: unknown;
+      };
+      get_public_testimonies: {
+        Args: { p_slug: string };
+        Returns: unknown;
+      };
+      approve_testimony: {
+        Args: { p_testimony_id: string };
+        Returns: undefined;
+      };
+      create_growth_track_stage: {
+        Args: { p_title: string; p_position: number; p_first_lesson_title: string; p_first_lesson_url?: string | null };
+        Returns: string;
+      };
+      add_growth_track_lesson: {
+        Args: { p_course_id: string; p_title: string; p_content_url?: string | null };
         Returns: string;
       };
     };

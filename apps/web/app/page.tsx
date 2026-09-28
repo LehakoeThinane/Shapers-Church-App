@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LoadingScreen, Screen, Text, theme } from "@shapers/ui";
-import { getCurrentUser } from "@shapers/api-client";
-import { getSupabaseClient } from "@/lib/supabase";
+import { getCustomMe } from "@/lib/customAuth";
 import { logoSource } from "@/lib/logo";
 
 export default function HomePage() {
@@ -15,20 +14,13 @@ export default function HomePage() {
     let cancelled = false;
 
     async function route() {
-      const client = getSupabaseClient();
-      const {
-        data: { session },
-      } = await client.auth.getSession();
-
-      if (!session) {
+      const me = await getCustomMe();
+      if (!me) {
         router.replace("/login");
         return;
       }
-
-      const me = await getCurrentUser(client);
       if (cancelled) return;
-
-      router.replace(me ? "/dashboard" : "/onboarding/match");
+      router.replace("/api-dashboard");
     }
 
     route().catch((err) => {

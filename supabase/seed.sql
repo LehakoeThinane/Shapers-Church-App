@@ -71,4 +71,31 @@ Let''s continue preparing our hearts, praying, and trusting God for an incredibl
   where not exists (
     select 1 from course c where c.church_id = v_church_id and c.title = 'Shapers Growth Track'
   );
+
+  update church set slug = coalesce(slug, 'shapers') where id = v_church_id;
+
+  insert into church_public_content (church_id, key, body)
+  values
+    (v_church_id, 'mission_statement', 'Shaping people to shape their world through the gospel of Jesus Christ.'),
+    (v_church_id, 'what_to_expect', 'Join us for Bible-centred worship, warm community, and practical teaching. Come as you are — there is a place for you here.'),
+    (v_church_id, 'beliefs', 'We are committed to the authority of Scripture, the saving work of Jesus Christ, and making disciples who live for God''s glory.')
+  on conflict (church_id, key) do update set body = excluded.body, updated_at = now();
+
+  insert into course (church_id, title, course_type, position, unlocks_milestone, is_published)
+  select v_church_id, title, 'growth_track', position, milestone, true
+  from (values
+    ('Purpose: Know God', 1, null::text),
+    ('Pursuit: Grow in Christ', 2, null::text),
+    ('Partner: Find Community', 3, null::text),
+    ('Produce: Make an Impact', 4, 'growth_track_complete')
+  ) as journey(title, position, milestone)
+  where not exists (select 1 from course c where c.church_id = v_church_id and c.title = journey.title);
+
+  insert into purpose_assessment_question (church_id, question_text, category, options, position)
+  select v_church_id, question_text, category, options::jsonb, position
+  from (values
+    ('When serving a team, I am most energised by…', 'spiritual_gift', '[{"key":"teach","text":"Helping people understand truth","weight":{"teaching":2,"leadership":1}},{"key":"care","text":"Noticing and caring for people","weight":{"mercy":2,"hospitality":1}},{"key":"build","text":"Organising a plan and getting it done","weight":{"administration":2,"leadership":1}}]', 1),
+    ('People most often come to me for…', 'natural_strength', '[{"key":"wisdom","text":"Perspective and wise counsel","weight":{"wisdom":2,"teaching":1}},{"key":"direction","text":"Direction and motivation","weight":{"leadership":2}},{"key":"support","text":"Encouragement and practical help","weight":{"mercy":2,"hospitality":1}}]', 2)
+  ) as assessment(question_text, category, options, position)
+  where not exists (select 1 from purpose_assessment_question q where q.church_id = v_church_id and q.position = assessment.position);
 end $$;

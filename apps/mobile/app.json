@@ -6,7 +6,6 @@
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "icon": "./assets/icon-square.png",
     "ios": {
       "supportsTablet": true,
@@ -41,7 +40,8 @@
         }
       ],
       "expo-asset",
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-status-bar"
     ],
     "extra": {
       "router": {

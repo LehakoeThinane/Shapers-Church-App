@@ -143,6 +143,27 @@ export default function AdminPage() {
                         Connect Planning Center, manage syncs
                     </Text>
                 </Link>
+
+                <Link
+                    href="/admin/new-here"
+                    style={{ display: "block", paddingTop: theme.spacing(2), paddingBottom: theme.spacing(2) }}
+                >
+                    <Text style={{ fontWeight: "500", marginBottom: theme.spacing(1) }}>New Here content →</Text>
+                    <Text style={{ color: theme.color.textMuted, fontSize: 12 }}>Edit your public welcome page and church slug</Text>
+                </Link>
+
+                <Link href="/admin/sermons" style={{ display: "block", paddingTop: theme.spacing(2), paddingBottom: theme.spacing(2) }}>
+                    <Text style={{ fontWeight: "500", marginBottom: theme.spacing(1) }}>Sermon library →</Text>
+                    <Text style={{ color: theme.color.textMuted, fontSize: 12 }}>Add drafts and publish sermon media</Text>
+                </Link>
+                <Link href="/admin/growth-track" style={{ display: "block", paddingTop: theme.spacing(2), paddingBottom: theme.spacing(2) }}>
+                    <Text style={{ fontWeight: "500", marginBottom: theme.spacing(1) }}>Growth Track →</Text>
+                    <Text style={{ color: theme.color.textMuted, fontSize: 12 }}>Build stages and add journey lessons</Text>
+                </Link>
+                <Link href="/admin/assessment" style={{ display: "block", paddingTop: theme.spacing(2), paddingBottom: theme.spacing(2) }}>
+                    <Text style={{ fontWeight: "500", marginBottom: theme.spacing(1) }}>Purpose assessment →</Text>
+                    <Text style={{ color: theme.color.textMuted, fontSize: 12 }}>Create weighted gift and calling questions</Text>
+                </Link>
             </GlassCard>
 
             <GlassCard style={{ marginBottom: theme.spacing(4) }}>

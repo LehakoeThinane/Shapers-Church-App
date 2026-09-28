@@ -4,11 +4,14 @@ export default function RootLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
-      <Stack.Screen name="(auth)/signup" />
       <Stack.Screen name="(auth)/login" />
       <Stack.Screen name="onboarding/match" />
       <Stack.Screen name="join/[code]" />
       <Stack.Screen name="admin/invite" />
+      <Stack.Screen name="admin/new-here" />
+      <Stack.Screen name="admin/sermons" />
+      <Stack.Screen name="admin/growth-track" />
+      <Stack.Screen name="admin/assessment" />
       <Stack.Screen name="become-member" />
       <Stack.Screen name="dashboard" />
       <Stack.Screen name="checkin/index" />

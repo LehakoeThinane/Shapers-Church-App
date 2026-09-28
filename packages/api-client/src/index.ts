@@ -7,3 +7,7 @@ export * from "./checkin";
 export * from "./groups";
 export * from "./courses";
 export * from "./community";
+export * from "./purpose";
+export * from "./testimonies";
+export * from "./public";
+export * from "./publicContent";

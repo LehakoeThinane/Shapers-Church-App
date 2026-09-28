@@ -1,85 +1,68 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { View } from "react-native";
-import { Button, Screen, Text, TextField, theme } from "@shapers/ui";
-import { signIn, signInWithGoogle, getCurrentUser } from "@shapers/api-client";
-import { getSupabaseClient } from "@/lib/supabase";
-import { logoSource } from "@/lib/logo";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Button, Screen, Text, TextField } from "@shapers/ui";
+import { signInCustom } from "../../../lib/customAuth";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [showEmailForm, setShowEmailForm] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  async function onSubmit() {
-    setError(null);
-    setLoading(true);
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setMessage(null);
+    setSubmitting(true);
+
     try {
-      const client = getSupabaseClient();
-      await signIn(client, { email, password });
-      const me = await getCurrentUser(client);
-      router.push(me ? "/dashboard" : "/onboarding/match");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      await signInCustom(email, password);
+      router.replace("/api-dashboard");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Unable to sign in.");
     } finally {
-      setLoading(false);
-    }
-  }
-
-  async function onGoogleSignIn() {
-    setError(null);
-    setGoogleLoading(true);
-    try {
-      await signInWithGoogle(getSupabaseClient(), `${window.location.origin}/auth/callback`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
-      setGoogleLoading(false);
+      setSubmitting(false);
     }
   }
 
   return (
-    <Screen logoSource={logoSource}>
-      <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: theme.spacing(6) }}>
-        Log in
+    <Screen className="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-8 px-6 py-12">
+      <div className="space-y-3">
+        <Text as="p" variant="eyebrow">Shapers Church</Text>
+        <Text as="h1" variant="display">Welcome back</Text>
+        <Text tone="muted">Sign in with the email and password you created for your church.</Text>
+      </div>
+
+      <form className="space-y-5" onSubmit={submit}>
+        <TextField
+          autoComplete="email"
+          label="Email address"
+          onChange={(event) => setEmail(event.target.value)}
+          required
+          type="email"
+          value={email}
+        />
+        <TextField
+          autoComplete="current-password"
+          label="Password"
+          minLength={12}
+          onChange={(event) => setPassword(event.target.value)}
+          required
+          type="password"
+          value={password}
+        />
+        {message ? <Text role="alert" tone="danger">{message}</Text> : null}
+        <Button className="w-full" disabled={submitting} type="submit">
+          {submitting ? "Signing in…" : "Sign in"}
+        </Button>
+      </form>
+
+      <Text tone="muted">
+        New here? <Link className="text-brand-600 underline" href="/signup">Create an account with your church invite code.</Link>
       </Text>
-      <Button title="Continue with Google" onPress={onGoogleSignIn} loading={googleLoading} />
-      {error ? (
-        <Text style={{ color: theme.color.danger, marginTop: theme.spacing(4) }}>{error}</Text>
-      ) : null}
-
-      {!showEmailForm ? (
-        <View style={{ marginTop: theme.spacing(4), alignItems: "center" }}>
-          <Text
-            onPress={() => setShowEmailForm(true)}
-            style={{ color: theme.color.textMuted, textDecorationLine: "underline" }}
-          >
-            Or log in with email
-          </Text>
-        </View>
-      ) : (
-        <View style={{ marginTop: theme.spacing(4) }}>
-          <TextField
-            label="Email"
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            keyboardType="email-address"
-          />
-          <TextField label="Password" value={password} onChangeText={setPassword} secureTextEntry />
-          <Button title="Log in" variant="secondary" onPress={onSubmit} loading={loading} />
-        </View>
-      )}
-
-      <View style={{ marginTop: theme.spacing(4), alignItems: "center" }}>
-        <Link href="/signup">Need an account? Sign up</Link>
-      </View>
     </Screen>
   );
 }

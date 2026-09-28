@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocalSearchParams } from "expo-router";
 import { View } from "react-native";
-import { Button, GlassCard, LoadingScreen, Screen, Text, theme } from "@shapers/ui";
+import { Button, GlassCard, LoadingScreen, MilestoneMoment, Screen, Text, theme } from "@shapers/ui";
 import {
   completeLesson,
   getCourseWithLessons,
@@ -111,11 +111,7 @@ export default function LessonScreen() {
           <GlassCard style={{ marginBottom: theme.spacing(4) }}>
             {quiz ? <Text style={{ fontWeight: "600" }}>Score: {result.score}%</Text> : null}
             <Text>Lesson complete.</Text>
-            {result.milestone ? (
-              <Text style={{ fontWeight: "700", marginTop: theme.spacing(2) }}>
-                🎉 You&apos;ve unlocked: {result.milestone}
-              </Text>
-            ) : null}
+            {result.milestone ? <MilestoneMoment milestone={result.milestone} /> : null}
           </GlassCard>
         ) : (
           <GlassCard style={{ marginBottom: theme.spacing(4) }}>

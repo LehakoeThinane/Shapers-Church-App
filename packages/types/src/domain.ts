@@ -22,6 +22,11 @@ export type Announcement = Database["public"]["Tables"]["announcement"]["Row"];
 export type Event = Database["public"]["Tables"]["event"]["Row"];
 export type EventRsvp = Database["public"]["Tables"]["event_rsvp"]["Row"];
 export type PrayerRequest = Database["public"]["Tables"]["prayer_request"]["Row"];
+export type Sermon = Database["public"]["Tables"]["sermon"]["Row"];
+export type ChurchPublicContent = Database["public"]["Tables"]["church_public_content"]["Row"];
+export type PurposeAssessmentQuestion = Database["public"]["Tables"]["purpose_assessment_question"]["Row"];
+export type PersonPurposeProfile = Database["public"]["Tables"]["person_purpose_profile"]["Row"];
+export type Testimony = Database["public"]["Tables"]["testimony"]["Row"];
 
 export type { Role, RoleScopeType };
 

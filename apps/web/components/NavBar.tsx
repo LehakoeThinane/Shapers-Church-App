@@ -13,6 +13,9 @@ const ITEMS: { href: string; label: string }[] = [
   { href: "/announcements", label: "Announcements" },
   { href: "/events", label: "Events" },
   { href: "/courses", label: "Courses" },
+  { href: "/journey", label: "Journey" },
+  { href: "/sermons", label: "Sermons" },
+  { href: "/testimonies", label: "Stories" },
   { href: "/prayer", label: "Prayer" },
 ];
 

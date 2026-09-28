@@ -220,35 +220,3 @@ export async function getChurchIntegration(
   if (error) throw error;
   return data;
 }
-
-// POST /admin/integrations — stored encrypted via Supabase vault.
-// Requires a backend endpoint that handles the OAuth flow and calls this.
-// For now, this is a placeholder for documentation.
-// The actual flow should be:
-// 1. Admin clicks "Connect Planning Center"
-// 2. Backend redirects to PC OAuth endpoint
-// 3. User authorizes and is returned with a code
-// 4. Backend exchanges code for token (server-side)
-// 5. Backend stores encrypted token in church_integration
-export async function saveChurchIntegrationToken(
-  client: ShapersClient,
-  churchId: string,
-  provider: ChurchIntegrationProvider,
-  encryptedToken: string
-): Promise<ChurchIntegration> {
-  const { data, error } = await client
-    .from("church_integration")
-    .upsert(
-      {
-        church_id: churchId,
-        provider,
-        encrypted_token: encryptedToken,
-        status: "active",
-      },
-      { onConflict: "church_id,provider" }
-    )
-    .select()
-    .single();
-  if (error) throw error;
-  return data;
-}

@@ -1,145 +1,93 @@
 import { useEffect, useState } from "react";
-import { useRouter, Link } from "expo-router";
-import { View } from "react-native";
-import { Button, LoadingScreen, Screen, Text, theme } from "@shapers/ui";
-import { getCurrentUser, getMilestones, signOut } from "@shapers/api-client";
-import type { CurrentUser, PersonMilestone } from "@shapers/types";
-import { getSupabaseClient } from "@/lib/supabase";
+import { useRouter } from "expo-router";
+import { Pressable, View } from "react-native";
+import { Button, GlassCard, LoadingScreen, Screen, Text, theme } from "@shapers/ui";
+import { getCustomMe, signOutCustom, type CustomMobileUser } from "@/lib/customAuth";
 import { logoSource } from "@/lib/logo";
+
+function roleLabel(role: string) {
+  return role.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+const destinations = [
+  { eyebrow: "GROW", title: "Purpose Journey", detail: "Discover your next step", route: "/journey" },
+  { eyebrow: "LISTEN", title: "Sermons", detail: "Find encouragement for the week", route: "/sermons" },
+  { eyebrow: "CONNECT", title: "Groups", detail: "Do life in community", route: "/groups" },
+  { eyebrow: "CARE", title: "Prayer", detail: "Share a request or pray for others", route: "/prayer" },
+];
 
 export default function DashboardScreen() {
   const router = useRouter();
-  const [me, setMe] = useState<CurrentUser | null>(null);
-  const [milestones, setMilestones] = useState<PersonMilestone[]>([]);
+  const [me, setMe] = useState<CustomMobileUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
-    const client = getSupabaseClient();
-    getCurrentUser(client)
-      .then(async (result) => {
+    getCustomMe()
+      .then((result) => {
         if (cancelled) return;
         if (!result) {
-          router.replace("/onboarding/match");
+          router.replace("/(auth)/login");
           return;
         }
         setMe(result);
-        const m = await getMilestones(client, result.person.id);
-        if (!cancelled) setMilestones(m);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [router]);
 
   async function onSignOut() {
-    await signOut(getSupabaseClient());
+    await signOutCustom();
     router.replace("/(auth)/login");
   }
 
   if (loading || !me) return <LoadingScreen logoSource={logoSource} />;
 
-  const roles = new Set(me.roleAssignments.map((ra) => ra.role));
-  const canCheckIn = roles.has("admin") || roles.has("kids_staff");
-  const isGuardian = roles.has("guardian");
-  const isMember = roles.has("member");
-
   return (
     <Screen logoSource={logoSource}>
-      <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: theme.spacing(2) }}>
-        Welcome, {me.person.first_name}
-      </Text>
-      <Text style={{ color: theme.color.textMuted, marginBottom: theme.spacing(3) }}>
-        {me.household ? me.household.name ?? "Household" : "No household on file yet"}
-      </Text>
-      {me.household ? (
-        <Link href="/household" style={{ color: theme.color.primary, marginBottom: theme.spacing(6) }}>
-          View household members →
-        </Link>
-      ) : null}
+      <Text style={{ color: theme.color.textMuted, letterSpacing: 2, fontSize: 12, fontWeight: "700", marginBottom: theme.spacing(2) }}>SHAPERS CHURCH</Text>
+      <Text style={{ fontSize: 32, fontWeight: "700", marginBottom: theme.spacing(1) }}>Welcome, {me.person.first_name}</Text>
+      <Text style={{ color: theme.color.textMuted, marginBottom: theme.spacing(6) }}>A place to belong, grow, and live with purpose.</Text>
 
-      <View style={{ marginBottom: theme.spacing(6) }}>
-        <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>Roles</Text>
+      <GlassCard variant="elevated" style={{ marginBottom: theme.spacing(5) }}>
+        <Text style={{ color: theme.color.textMuted, letterSpacing: 1.5, fontSize: 11, fontWeight: "700", marginBottom: theme.spacing(2) }}>YOUR NEXT STEP</Text>
+        <Text style={{ fontSize: 22, fontWeight: "700", marginBottom: theme.spacing(1) }}>Keep becoming</Text>
+        <Text style={{ color: theme.color.textMuted, lineHeight: 21 }}>Your journey is personal. Start where you are and take one faithful step today.</Text>
+        <Pressable onPress={() => router.push("/journey")} style={{ marginTop: theme.spacing(4) }}>
+          <Text style={{ fontWeight: "700" }}>Open Purpose Journey  →</Text>
+        </Pressable>
+      </GlassCard>
+
+      <Text style={{ fontSize: 18, fontWeight: "700", marginBottom: theme.spacing(3) }}>Explore</Text>
+      {destinations.map((item) => (
+        <Pressable key={item.route} onPress={() => router.push(item.route as never)} style={{ marginBottom: theme.spacing(3) }}>
+          <GlassCard>
+            <Text style={{ color: theme.color.textMuted, letterSpacing: 1.5, fontSize: 10, fontWeight: "700", marginBottom: theme.spacing(2) }}>{item.eyebrow}</Text>
+            <Text style={{ fontSize: 20, fontWeight: "700", marginBottom: theme.spacing(1) }}>{item.title}</Text>
+            <Text style={{ color: theme.color.textMuted }}>{item.detail}</Text>
+          </GlassCard>
+        </Pressable>
+      ))}
+
+      <GlassCard style={{ marginBottom: theme.spacing(4) }}>
+        <Text style={{ fontWeight: "700", marginBottom: theme.spacing(2) }}>Account</Text>
+        <Text>{me.person.email}</Text>
+        <Text style={{ color: theme.color.success, marginTop: theme.spacing(1) }}>Connected</Text>
+        <Pressable onPress={() => router.push("/settings")} style={{ marginTop: theme.spacing(3) }}>
+          <Text style={{ fontWeight: "700" }}>Open account settings  →</Text>
+        </Pressable>
+      </GlassCard>
+
+      <GlassCard style={{ marginBottom: theme.spacing(5) }}>
+        <Text style={{ fontWeight: "700", marginBottom: theme.spacing(2) }}>Your roles</Text>
         {me.roleAssignments.length === 0 ? (
-          <Text style={{ color: theme.color.textMuted }}>No roles assigned</Text>
-        ) : (
-          me.roleAssignments.map((ra) => (
-            <Text key={ra.id} style={{ color: theme.color.text }}>
-              {ra.role}
-              {ra.scope_type ? ` (${ra.scope_type})` : ""}
-            </Text>
-          ))
-        )}
-      </View>
-
-      {milestones.length > 0 ? (
-        <View style={{ marginBottom: theme.spacing(6) }}>
-          <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>Milestones</Text>
-          {milestones.map((m) => (
-            <Text key={m.id}>
-              {m.milestone_type} — {m.achieved_at}
-            </Text>
-          ))}
-        </View>
-      ) : null}
-
-      <View style={{ marginBottom: theme.spacing(1) }}>
-        <Link href="/groups">Groups</Link>
-      </View>
-      <View style={{ marginBottom: theme.spacing(1) }}>
-        <Link href="/announcements">Announcements</Link>
-      </View>
-      <View style={{ marginBottom: theme.spacing(1) }}>
-        <Link href="/events">Events</Link>
-      </View>
-      {isMember ? (
-        <>
-          <View style={{ marginBottom: theme.spacing(1) }}>
-            <Link href="/courses">Courses</Link>
-          </View>
-          <View style={{ marginBottom: theme.spacing(6) }}>
-            <Link href="/prayer">Prayer wall</Link>
-          </View>
-        </>
-      ) : (
-        <View style={{ marginBottom: theme.spacing(6) }}>
-          <Link href="/become-member">Become a member</Link>
-        </View>
-      )}
-
-      {roles.has("admin") ? (
-        <View style={{ marginBottom: theme.spacing(6) }}>
-          <Link href="/admin">Admin dashboard</Link>
-        </View>
-      ) : null}
-
-      {isGuardian || canCheckIn ? (
-        <View style={{ marginBottom: theme.spacing(6) }}>
-          <Text style={{ fontWeight: "600", marginBottom: theme.spacing(2) }}>Check-in</Text>
-          {isGuardian ? (
-            <Link href="/checkin" style={{ marginBottom: theme.spacing(1) }}>
-              My children&apos;s QR codes
-            </Link>
-          ) : null}
-          {canCheckIn ? (
-            <>
-              <Link href="/checkin/scan" style={{ marginBottom: theme.spacing(1) }}>
-                Check in (staff)
-              </Link>
-              <Link href="/checkin/pickup">Pickup (staff)</Link>
-            </>
-          ) : null}
-        </View>
-      ) : null}
-
-      <View style={{ marginBottom: theme.spacing(6) }}>
-        <Link href="/settings" style={{ color: theme.color.textMuted }}>
-          Settings
-        </Link>
-      </View>
+          <Text style={{ color: theme.color.textMuted }}>No roles assigned yet.</Text>
+        ) : me.roleAssignments.map((assignment) => (
+          <Text key={assignment.role} style={{ marginBottom: theme.spacing(1) }}>{roleLabel(assignment.role)}</Text>
+        ))}
+      </GlassCard>
 
       <Button title="Sign out" variant="secondary" onPress={onSignOut} />
     </Screen>

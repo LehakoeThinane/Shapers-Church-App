@@ -9,3 +9,4 @@ export * from "./Logo";
 export * from "./BrandHeader";
 export * from "./Screen";
 export * from "./LoadingScreen";
+export * from "./MilestoneMoment";
